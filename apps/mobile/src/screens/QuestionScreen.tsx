@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { questionService } from '../core/services/QuestionService';
+import { 
+  Question, 
+  QuestionAnswer, 
+  ANSWER_OPTIONS, 
+  AnswerId,
+  QUESTION_CONFIG 
+} from '../core/types/question.types';
 
 type RootStackParamList = {
   Home: undefined;
@@ -13,47 +21,84 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Question'>;
 };
 
-const DUMMY_QUESTIONS = [
-  '温かい料理がいい？',
-  '汁ものが欲しい？',
-  'こってり・脂っこい方がいい？',
-  '辛い・スパイスが欲しい？',
-  '今日はご飯ものがいい？',
-];
-
-const MAX_QUESTIONS = 12;
-
-const ANSWER_OPTIONS = [
-  { label: 'はい', value: 'YES' },
-  { label: 'たぶんはい', value: 'PROB_YES' },
-  { label: 'わからない', value: 'UNKNOWN' },
-  { label: 'たぶんいいえ', value: 'PROB_NO' },
-  { label: 'いいえ', value: 'NO' },
-];
-
 export default function QuestionScreen({ navigation }: Props) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [answers, setAnswers] = useState<QuestionAnswer[]>([]);
+  const [fadeAnim] = useState(new Animated.Value(1));
 
-  const currentQuestion = DUMMY_QUESTIONS[currentIndex % DUMMY_QUESTIONS.length];
-  const progress = `${currentIndex + 1}/${MAX_QUESTIONS}`;
+  // 初期化と次の質問のロード
+  useEffect(() => {
+    loadNextQuestion();
+    return () => {
+      // クリーンアップ
+      questionService.reset();
+    };
+  }, []);
 
-  const handleAnswer = (value: string) => {
-    const newAnswers = [...answers, value];
-    setAnswers(newAnswers);
-
-    if (currentIndex + 1 >= MAX_QUESTIONS) {
-      // 最後の質問
+  const loadNextQuestion = () => {
+    const nextQuestion = questionService.getNextQuestion(answers);
+    
+    if (!nextQuestion) {
+      // 質問がなくなった場合も結果へ
       navigation.navigate('Result');
-    } else {
-      setCurrentIndex(currentIndex + 1);
+      return;
     }
+
+    setCurrentQuestion(nextQuestion);
+  };
+
+  const handleAnswer = (answerId: AnswerId) => {
+    if (!currentQuestion) return;
+
+    // フェードアウトアニメーション
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      // 回答を記録
+      const newAnswer: QuestionAnswer = {
+        questionId: currentQuestion.id,
+        answerId,
+        timestamp: Date.now(),
+      };
+      
+      const newAnswers = [...answers, newAnswer];
+      setAnswers(newAnswers);
+      questionService.markAsAnswered(currentQuestion.id);
+
+      // 継続判定
+      if (!questionService.shouldContinue(newAnswers.length)) {
+        navigation.navigate('Result');
+        return;
+      }
+
+      // 次の質問へ
+      loadNextQuestion();
+      
+      // フェードイン
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
   };
 
   const handleBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setAnswers(answers.slice(0, -1));
+    if (answers.length === 0) return;
+
+    // 最後の回答を取り消し
+    const lastAnswer = answers[answers.length - 1];
+    questionService.unmarkQuestion(lastAnswer.questionId);
+    
+    const newAnswers = answers.slice(0, -1);
+    setAnswers(newAnswers);
+
+    // 前の質問に戻る
+    const previousQuestion = questionService.getQuestionById(lastAnswer.questionId);
+    if (previousQuestion) {
+      setCurrentQuestion(previousQuestion);
     }
   };
 
@@ -66,39 +111,59 @@ export default function QuestionScreen({ navigation }: Props) {
         {
           text: '中断する',
           style: 'destructive',
-          onPress: () => navigation.navigate('Home'),
+          onPress: () => {
+            questionService.reset();
+            navigation.navigate('Home');
+          },
         },
       ]
     );
   };
 
+  if (!currentQuestion) {
+    return (
+      <View style={styles.container}>
+        <Text>読み込み中...</Text>
+      </View>
+    );
+  }
+
+  const progress = `${answers.length + 1}/${QUESTION_CONFIG.MAX_QUESTIONS}`;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.progress}>{progress}</Text>
-        <TouchableOpacity onPress={handleCancel}>
+        <TouchableOpacity onPress={handleCancel} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
           <Text style={styles.cancelText}>中断</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>{currentQuestion}</Text>
-      </View>
+      <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
+        <View style={styles.questionCard}>
+          <Text style={styles.questionText}>{currentQuestion.text}</Text>
+        </View>
+      </Animated.View>
 
       <View style={styles.answersContainer}>
         {ANSWER_OPTIONS.map((option) => (
           <TouchableOpacity
-            key={option.value}
+            key={option.id}
             style={styles.answerButton}
-            onPress={() => handleAnswer(option.value)}
+            onPress={() => handleAnswer(option.id)}
+            activeOpacity={0.7}
           >
             <Text style={styles.answerText}>{option.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {currentIndex > 0 && (
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+      {answers.length > 0 && (
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={handleBack}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
           <Text style={styles.backText}>← 戻る</Text>
         </TouchableOpacity>
       )}
@@ -117,7 +182,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   progress: {
     fontSize: 18,
@@ -127,12 +192,22 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 16,
     color: '#FF3B30',
+    fontWeight: '500',
   },
   questionContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
+  },
+  questionCard: {
+    backgroundColor: '#F8F9FA',
+    padding: 32,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   questionText: {
     fontSize: 28,
@@ -146,23 +221,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   answerButton: {
-    backgroundColor: '#F0F0F0',
-    paddingVertical: 16,
+    backgroundColor: '#007AFF',
+    paddingVertical: 18,
     paddingHorizontal: 24,
     borderRadius: 12,
     alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   answerText: {
+    color: '#fff',
     fontSize: 18,
-    color: '#333',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   backButton: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
   },
   backText: {
     fontSize: 16,
     color: '#007AFF',
+    fontWeight: '500',
   },
 });
