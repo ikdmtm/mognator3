@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 60,
     marginBottom: 12,
   },
   title: {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   probability: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#FF6B35',
   },
   reason: {
     fontSize: 14,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mapButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B35',
   },
   mapButtonText: {
     color: '#fff',
@@ -158,10 +158,10 @@ const styles = StyleSheet.create({
   selectButton: {
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#007AFF',
+    borderColor: '#FF6B35',
   },
   selectButtonText: {
-    color: '#007AFF',
+    color: '#FF6B35',
     fontSize: 16,
     fontWeight: '600',
   },

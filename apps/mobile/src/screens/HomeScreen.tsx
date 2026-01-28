@@ -16,7 +16,7 @@ type Props = {
 export default function HomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Food Oracle</Text>
+      <Text style={styles.title}>モグネイター</Text>
       <Text style={styles.subtitle}>
         質問に答えて、今の気分にあった食事を見つけましょう
       </Text>
@@ -60,11 +60,16 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B35',
     paddingHorizontal: 48,
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: '#fff',
@@ -76,7 +81,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   settingsButtonText: {
-    color: '#007AFF',
+    color: '#FF6B35',
     fontSize: 16,
   },
 });

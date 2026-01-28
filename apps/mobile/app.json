@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Food Oracle",
-    "slug": "food-oracle",
+    "name": "モグネイター",
+    "slug": "mognator",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,14 +13,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.foodoracle.mobile"
+      "bundleIdentifier": "com.mognator.mobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.foodoracle.mobile"
+      "package": "com.mognator.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"

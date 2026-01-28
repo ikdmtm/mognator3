@@ -227,14 +227,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   answerButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF6B35',
     paddingVertical: 18,
     paddingHorizontal: 24,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#007AFF',
+    shadowColor: '#FF6B35',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 2,
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#FF6B35',
     fontWeight: '500',
   },
 });
