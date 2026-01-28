@@ -78,7 +78,11 @@ export default function QuestionScreen({ navigation }: Props) {
       inferenceEngine.updateWithAnswer(currentQuestion, answerId);
 
       // 継続判定
-      if (!questionService.shouldContinue(newAnswers.length)) {
+      const shouldContinue = questionService.shouldContinue(newAnswers.length);
+      const canTerminate = newAnswers.length >= QUESTION_CONFIG.MIN_QUESTIONS && 
+                          inferenceEngine.canTerminateEarly();
+      
+      if (!shouldContinue || canTerminate) {
         navigation.navigate('Result', { answers: newAnswers });
         return;
       }

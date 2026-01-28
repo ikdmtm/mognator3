@@ -48,8 +48,9 @@ export interface QuestionAnswer {
  * 質問セッションの設定
  */
 export const QUESTION_CONFIG = {
-  MAX_QUESTIONS: 12,
-  CONFIDENCE_THRESHOLD: 0.65,
+  MIN_QUESTIONS: 3, // 最低質問数
+  MAX_QUESTIONS: 12, // 最大質問数
+  CONFIDENCE_THRESHOLD: 0.65, // 早期終了の閾値
   RECENT_GROUP_AVOID: 2, // 直近N問で同じグループを避ける
 } as const;
 

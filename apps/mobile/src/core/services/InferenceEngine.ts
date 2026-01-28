@@ -208,9 +208,37 @@ export class InferenceEngine {
   }
 
   /**
-   * Top3ジャンルを計算
+   * Top1の確信度を取得
    */
-  getTop3(): GenreResult[] {
+  getTopConfidence(): number {
+    const results = this.getTopResults(1);
+    return results.length > 0 ? results[0].probability : 0;
+  }
+
+  /**
+   * Top1とTop2の確率差を取得
+   */
+  getTop1Top2Gap(): number {
+    const results = this.getTopResults(2);
+    if (results.length < 2) return 1.0;
+    return results[0].probability - results[1].probability;
+  }
+
+  /**
+   * 早期終了可能かチェック
+   */
+  canTerminateEarly(): boolean {
+    const topConfidence = this.getTopConfidence();
+    const gap = this.getTop1Top2Gap();
+    
+    // Top1が65%以上、またはTop1とTop2の差が30%以上
+    return topConfidence >= INFERENCE_CONFIG.CONFIDENCE_THRESHOLD || gap >= 0.3;
+  }
+
+  /**
+   * Top Nジャンルを取得
+   */
+  private getTopResults(n: number): GenreResult[] {
     // logスコアから確率に変換
     const results: GenreResult[] = this.genres.map(genre => {
       const logScore = this.genreLogScores.get(genre.id) || INFERENCE_CONFIG.MIN_LOG_PROB;
@@ -226,8 +254,15 @@ export class InferenceEngine {
     // 確率でソート
     results.sort((a, b) => b.probability - a.probability);
 
-    // Top3を返す
-    return results.slice(0, 3);
+    // Top Nを返す
+    return results.slice(0, n);
+  }
+
+  /**
+   * Top3ジャンルを計算
+   */
+  getTop3(): GenreResult[] {
+    return this.getTopResults(3);
   }
 
   /**

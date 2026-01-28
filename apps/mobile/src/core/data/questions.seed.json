@@ -1,33 +1,121 @@
 [
   { "id": "q_warm", "text": "温かい料理がいい？", "group": "temperature", "enabled": true },
   { "id": "q_cold", "text": "冷たい料理が食べたい？", "group": "temperature", "enabled": true },
+  { "id": "q_hot_hot", "text": "熱々が好き？", "group": "temperature", "enabled": true },
+  { "id": "q_room_temp", "text": "常温でもOK？", "group": "temperature", "enabled": true },
+  
   { "id": "q_soupy", "text": "汁ものが欲しい？", "group": "soupiness", "enabled": true },
   { "id": "q_no_soup", "text": "汁なしの方がいい？", "group": "soupiness", "enabled": true },
+  { "id": "q_soup_light", "text": "スープは少なめがいい？", "group": "soupiness", "enabled": true },
+  
   { "id": "q_rich", "text": "こってり・脂っこい方がいい？", "group": "richness", "enabled": true },
   { "id": "q_light", "text": "さっぱりした味がいい？", "group": "richness", "enabled": true },
+  { "id": "q_creamy", "text": "クリーミーな味がいい？", "group": "richness", "enabled": true },
+  { "id": "q_oily", "text": "油多めでもOK？", "group": "richness", "enabled": true },
+  
   { "id": "q_spicy", "text": "辛い・スパイスが欲しい？", "group": "spice_level", "enabled": true },
   { "id": "q_mild", "text": "辛くない方がいい？", "group": "spice_level", "enabled": true },
   { "id": "q_very_spicy", "text": "激辛でも大丈夫？", "group": "spice_level", "enabled": true },
+  { "id": "q_spice_aroma", "text": "スパイスの香りが好き？", "group": "spice_level", "enabled": true },
+  
   { "id": "q_rice", "text": "今日はご飯ものがいい？", "group": "staple", "enabled": true },
   { "id": "q_noodles", "text": "麺類が食べたい？", "group": "staple", "enabled": true },
   { "id": "q_bread", "text": "パン系がいい？", "group": "staple", "enabled": true },
   { "id": "q_no_carb", "text": "炭水化物少なめがいい？", "group": "staple", "enabled": true },
+  { "id": "q_thick_noodle", "text": "太麺が好き？", "group": "staple", "enabled": true },
+  { "id": "q_thin_noodle", "text": "細麺が好き？", "group": "staple", "enabled": true },
+  
   { "id": "q_chewy", "text": "もちもち・弾力がある食感がいい？", "group": "texture", "enabled": true },
   { "id": "q_crispy", "text": "カリカリ・サクサクした食感がいい？", "group": "texture", "enabled": true },
   { "id": "q_soft", "text": "柔らかい食感がいい？", "group": "texture", "enabled": true },
+  { "id": "q_crunchy", "text": "シャキシャキした食感がいい？", "group": "texture", "enabled": true },
+  { "id": "q_smooth", "text": "とろとろ・なめらかがいい？", "group": "texture", "enabled": true },
+  { "id": "q_fluffy", "text": "ふわふわがいい？", "group": "texture", "enabled": true },
+  
   { "id": "q_savory", "text": "濃い味・しょっぱい方がいい？", "group": "flavor", "enabled": true },
   { "id": "q_sweet", "text": "甘めの味付けがいい？", "group": "flavor", "enabled": true },
   { "id": "q_umami", "text": "旨味・出汁が効いてる方がいい？", "group": "flavor", "enabled": true },
   { "id": "q_sour", "text": "酸味がある方がいい？", "group": "flavor", "enabled": true },
+  { "id": "q_bitter", "text": "苦味があってもOK？", "group": "flavor", "enabled": true },
+  { "id": "q_miso_taste", "text": "味噌味が好き？", "group": "flavor", "enabled": true },
+  { "id": "q_soy_taste", "text": "醤油味が好き？", "group": "flavor", "enabled": true },
+  { "id": "q_garlic", "text": "にんにくが効いてる方がいい？", "group": "flavor", "enabled": true },
+  { "id": "q_ginger", "text": "生姜の風味がいい？", "group": "flavor", "enabled": true },
+  
   { "id": "q_large", "text": "がっつり・量が多い方がいい？", "group": "portion", "enabled": true },
   { "id": "q_light_portion", "text": "軽め・少なめがいい？", "group": "portion", "enabled": true },
+  { "id": "q_fill", "text": "お腹いっぱい食べたい？", "group": "portion", "enabled": true },
+  
   { "id": "q_meat", "text": "肉が食べたい？", "group": "protein", "enabled": true },
   { "id": "q_fish", "text": "魚介が食べたい？", "group": "protein", "enabled": true },
   { "id": "q_veggie", "text": "野菜多めがいい？", "group": "protein", "enabled": true },
+  { "id": "q_chicken", "text": "鶏肉がいい？", "group": "protein", "enabled": true },
+  { "id": "q_pork", "text": "豚肉がいい？", "group": "protein", "enabled": true },
+  { "id": "q_beef", "text": "牛肉がいい？", "group": "protein", "enabled": true },
+  { "id": "q_egg", "text": "卵料理がいい？", "group": "protein", "enabled": true },
+  { "id": "q_seafood_raw", "text": "生の魚介がいい？", "group": "protein", "enabled": true },
+  { "id": "q_tofu", "text": "豆腐が好き？", "group": "protein", "enabled": true },
+  
   { "id": "q_chinese", "text": "中華系の味付けがいい？", "group": "cuisine", "enabled": true },
   { "id": "q_japanese", "text": "和食系がいい？", "group": "cuisine", "enabled": true },
   { "id": "q_western", "text": "洋食系がいい？", "group": "cuisine", "enabled": true },
-  { "id": "q_quick", "text": "サッと食べられる方がいい？", "group": "eating_style", "enabled": true },
-  { "id": "q_comfort", "text": "ゆっくり楽しみたい？", "group": "eating_style", "enabled": true }
-]
+  { "id": "q_korean", "text": "韓国料理がいい？", "group": "cuisine", "enabled": true },
+  { "id": "q_asian", "text": "アジアン系がいい？", "group": "cuisine", "enabled": true },
+  { "id": "q_italian", "text": "イタリアンがいい？", "group": "cuisine", "enabled": true },
   
+  { "id": "q_quick", "text": "サッと食べられる方がいい？", "group": "eating_style", "enabled": true },
+  { "id": "q_comfort", "text": "ゆっくり楽しみたい？", "group": "eating_style", "enabled": true },
+  { "id": "q_casual", "text": "気軽に食べたい？", "group": "eating_style", "enabled": true },
+  { "id": "q_share", "text": "みんなでシェアしたい？", "group": "eating_style", "enabled": true },
+  
+  { "id": "q_fried", "text": "揚げ物が食べたい？", "group": "cooking_method", "enabled": true },
+  { "id": "q_grilled", "text": "焼き物が食べたい？", "group": "cooking_method", "enabled": true },
+  { "id": "q_boiled", "text": "煮込み料理がいい？", "group": "cooking_method", "enabled": true },
+  { "id": "q_steamed", "text": "蒸し料理がいい？", "group": "cooking_method", "enabled": true },
+  { "id": "q_raw", "text": "生もの・火を通してないものもOK？", "group": "cooking_method", "enabled": true },
+  { "id": "q_stir_fry", "text": "炒め物がいい？", "group": "cooking_method", "enabled": true },
+  
+  { "id": "q_healthy", "text": "ヘルシーな方がいい？", "group": "mood", "enabled": true },
+  { "id": "q_indulgent", "text": "今日は贅沢したい？", "group": "mood", "enabled": true },
+  { "id": "q_comfort_food", "text": "癒される感じがいい？", "group": "mood", "enabled": true },
+  { "id": "q_energize", "text": "元気が出る感じがいい？", "group": "mood", "enabled": true },
+  { "id": "q_adventure", "text": "冒険的な料理を試したい？", "group": "mood", "enabled": true },
+  { "id": "q_nostalgic", "text": "懐かしい味がいい？", "group": "mood", "enabled": true },
+  
+  { "id": "q_cheese", "text": "チーズが好き？", "group": "ingredients", "enabled": true },
+  { "id": "q_tomato", "text": "トマト系がいい？", "group": "ingredients", "enabled": true },
+  { "id": "q_onion", "text": "玉ねぎたっぷりがいい？", "group": "ingredients", "enabled": true },
+  { "id": "q_mushroom", "text": "きのこ類がいい？", "group": "ingredients", "enabled": true },
+  { "id": "q_seafood_variety", "text": "色んな魚介が入ってる方がいい？", "group": "ingredients", "enabled": true },
+  
+  { "id": "q_lunch", "text": "ランチ向きがいい？", "group": "occasion", "enabled": true },
+  { "id": "q_dinner", "text": "夕食向きがいい？", "group": "occasion", "enabled": true },
+  { "id": "q_late_night", "text": "夜遅めに食べる？", "group": "occasion", "enabled": true },
+  
+  { "id": "q_affordable", "text": "リーズナブルな方がいい？", "group": "price", "enabled": true },
+  { "id": "q_premium", "text": "ちょっと贅沢してもいい？", "group": "price", "enabled": true },
+  
+  { "id": "q_unique", "text": "ユニークな料理がいい？", "group": "preference", "enabled": true },
+  { "id": "q_classic", "text": "定番・王道がいい？", "group": "preference", "enabled": true },
+  { "id": "q_familiar", "text": "いつも食べ慣れてるものがいい？", "group": "preference", "enabled": true },
+  { "id": "q_seasonal", "text": "季節感のある料理がいい？", "group": "preference", "enabled": true },
+  
+  { "id": "q_colorful", "text": "見た目が華やか・カラフルがいい？", "group": "visual", "enabled": true },
+  { "id": "q_simple_look", "text": "見た目はシンプルでいい？", "group": "visual", "enabled": true },
+  
+  { "id": "q_drink_match", "text": "お酒に合う料理がいい？", "group": "pairing", "enabled": true },
+  { "id": "q_rice_match", "text": "ご飯が進む味がいい？", "group": "pairing", "enabled": true },
+  
+  { "id": "q_one_plate", "text": "一皿で完結する方がいい？", "group": "serving", "enabled": true },
+  { "id": "q_multi_dish", "text": "いくつか料理を頼みたい？", "group": "serving", "enabled": true },
+  
+  { "id": "q_authentic", "text": "本格的な味がいい？", "group": "authenticity", "enabled": true },
+  { "id": "q_fusion", "text": "アレンジされた味もOK？", "group": "authenticity", "enabled": true },
+  
+  { "id": "q_hot_weather", "text": "暑い日向きがいい？", "group": "weather", "enabled": true },
+  { "id": "q_cold_weather", "text": "寒い日向きがいい？", "group": "weather", "enabled": true },
+  
+  { "id": "q_soup_base", "text": "スープベースの料理がいい？", "group": "base", "enabled": true },
+  { "id": "q_sauce_base", "text": "ソースベースの料理がいい？", "group": "base", "enabled": true },
+  { "id": "q_dry_base", "text": "汁気がない料理がいい？", "group": "base", "enabled": true }
+]
