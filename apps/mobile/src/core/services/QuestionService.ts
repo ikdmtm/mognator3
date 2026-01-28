@@ -23,9 +23,12 @@ export class QuestionService {
   }
 
   /**
-   * 次の質問を選択（グループの連発を避ける）
+   * 次の質問を選択（情報ゲインベース + グループ連発抑制）
    */
-  getNextQuestion(answers: QuestionAnswer[]): Question | null {
+  getNextQuestion(
+    answers: QuestionAnswer[],
+    inferenceEngine?: { getTopGenres(k: number): any[]; calculateQuestionScore(q: Question, genres: any[]): number }
+  ): Question | null {
     const available = this.getAvailableQuestions();
     
     if (available.length === 0) {
@@ -42,7 +45,27 @@ export class QuestionService {
 
     const candidates = preferredQuestions.length > 0 ? preferredQuestions : available;
     
-    // ランダムに選択（MVPではランダム、M2以降で情報量基準に）
+    // 情報ゲインによる質問選択
+    if (inferenceEngine && answers.length > 0) {
+      const topGenres = inferenceEngine.getTopGenres(30);
+      
+      // 各質問の情報ゲインスコアを計算
+      const scoredQuestions = candidates.map(q => ({
+        question: q,
+        score: inferenceEngine.calculateQuestionScore(q, topGenres),
+      }));
+
+      // スコアが高い順にソート
+      scoredQuestions.sort((a, b) => b.score - a.score);
+
+      // 上位3つからランダムに選択（多様性を保つ）
+      const top3 = scoredQuestions.slice(0, Math.min(3, scoredQuestions.length));
+      const selected = top3[Math.floor(Math.random() * top3.length)];
+      
+      return selected.question;
+    }
+    
+    // 初回またはinferenceEngineがない場合はランダム
     return candidates[Math.floor(Math.random() * candidates.length)];
   }
 

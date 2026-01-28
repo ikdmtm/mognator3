@@ -29,5 +29,6 @@ export const INFERENCE_CONFIG = {
   SMOOTHING_ALPHA: 1.0, // Dirichlet prior α
   TOP_K_GENRES: 30, // 上位K件に絞って計算
   MIN_LOG_PROB: -100, // 最小log確率（アンダーフロー防止）
-  CONFIDENCE_THRESHOLD: 0.65, // 早期終了の確信度閾値
+  CONFIDENCE_THRESHOLD: 0.35, // 早期終了の確信度閾値（108ジャンル対応）
+  GAP_THRESHOLD: 0.15, // Top1-Top2差の閾値
 } as const;

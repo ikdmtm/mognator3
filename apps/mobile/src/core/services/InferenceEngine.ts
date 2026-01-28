@@ -121,7 +121,7 @@ export class InferenceEngine {
    * ヒューリスティックスコアの計算
    * ジャンルと質問・回答の関連性をルールベースで評価
    */
-  private getHeuristicScore(genreId: string, questionId: string, answerId: string): number {
+  getHeuristicScore(genreId: string, questionId: string, answerId: string): number {
     const answer = ANSWER_OPTIONS.find(opt => opt.id === answerId);
     if (!answer) return 0.2; // デフォルト
     
@@ -260,14 +260,27 @@ export class InferenceEngine {
     const traits = genreTraits[genreId] || {};
     const traitValue = traits[questionId] || 0; // -2 to 2
     
-    // 回答値とジャンル特性の一致度を計算
+    // 回答値とジャンル特性の一致度を計算（強化版）
     // answerValue と traitValue が近いほど高スコア
-    const alignment = 2 - Math.abs(answerValue - traitValue) / 2; // 0 to 2
+    const diff = Math.abs(answerValue - traitValue);
     
-    // 0-1 の範囲に正規化（0.1 〜 0.9）
-    const normalized = 0.1 + (alignment / 2) * 0.8;
+    // より強いシグナルを与える
+    let likelihood: number;
+    if (diff === 0) {
+      // 完全一致: 90%
+      likelihood = 0.90;
+    } else if (diff === 1) {
+      // 部分一致: 60%
+      likelihood = 0.60;
+    } else if (diff === 2) {
+      // 中立: 30%
+      likelihood = 0.30;
+    } else {
+      // 逆: 10%
+      likelihood = 0.10;
+    }
     
-    return normalized;
+    return likelihood;
   }
 
   /**
@@ -316,8 +329,8 @@ export class InferenceEngine {
     const topConfidence = this.getTopConfidence();
     const gap = this.getTop1Top2Gap();
     
-    // Top1が65%以上、またはTop1とTop2の差が30%以上
-    return topConfidence >= INFERENCE_CONFIG.CONFIDENCE_THRESHOLD || gap >= 0.3;
+    // Top1が35%以上、またはTop1とTop2の差が15%以上
+    return topConfidence >= INFERENCE_CONFIG.CONFIDENCE_THRESHOLD || gap >= INFERENCE_CONFIG.GAP_THRESHOLD;
   }
 
   /**
@@ -348,6 +361,38 @@ export class InferenceEngine {
    */
   getTop3(): GenreResult[] {
     return this.getTopResults(3);
+  }
+
+  /**
+   * Top Kジャンルを取得（質問選択用）
+   */
+  getTopGenres(k: number = 30): Genre[] {
+    const results = this.getTopResults(k);
+    return results.map(r => r.genre);
+  }
+
+  /**
+   * 質問の期待情報ゲインを計算
+   * Top候補ジャンルでヒューリスティックスコアの分散が大きい質問ほど高スコア
+   */
+  calculateQuestionScore(question: Question, topGenres: Genre[]): number {
+    const scores: number[] = [];
+
+    // 各回答オプションについて、Top候補ジャンルでのスコア分散を計算
+    ANSWER_OPTIONS.forEach(option => {
+      const genreScores = topGenres.map(genre => {
+        return this.getHeuristicScore(genre.id, question.id, option.id);
+      });
+
+      // 分散を計算
+      const mean = genreScores.reduce((sum, s) => sum + s, 0) / genreScores.length;
+      const variance = genreScores.reduce((sum, s) => sum + Math.pow(s - mean, 2), 0) / genreScores.length;
+      
+      scores.push(variance);
+    });
+
+    // 全回答オプションの平均分散を返す
+    return scores.reduce((sum, s) => sum + s, 0) / scores.length;
   }
 
   /**

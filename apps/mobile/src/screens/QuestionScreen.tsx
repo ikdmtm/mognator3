@@ -42,12 +42,13 @@ export default function QuestionScreen({ navigation }: Props) {
     };
   }, []);
 
-  const loadNextQuestion = () => {
-    const nextQuestion = questionService.getNextQuestion(answers);
+  const loadNextQuestion = (currentAnswers: QuestionAnswer[] = answers) => {
+    // 情報ゲインを使った質問選択（inferenceEngineを渡す）
+    const nextQuestion = questionService.getNextQuestion(currentAnswers, inferenceEngine);
     
     if (!nextQuestion) {
       // 質問がなくなった場合も結果へ
-      navigation.navigate('Result', { answers });
+      navigation.navigate('Result', { answers: currentAnswers });
       return;
     }
 
@@ -87,8 +88,8 @@ export default function QuestionScreen({ navigation }: Props) {
         return;
       }
 
-      // 次の質問へ
-      loadNextQuestion();
+      // 次の質問へ（最新のanswersを渡す）
+      loadNextQuestion(newAnswers);
       
       // フェードイン
       Animated.timing(fadeAnim, {
