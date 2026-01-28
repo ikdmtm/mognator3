@@ -3,21 +3,25 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'rea
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { inferenceEngine } from '../core/services/InferenceEngine';
 import { locationService } from '../core/services/LocationService';
+import { storageService } from '../core/services/StorageService';
 import { GenreResult } from '../core/types/genre.types';
+import { QuestionAnswer } from '../core/types/question.types';
 
 type RootStackParamList = {
   Home: undefined;
-  Question: undefined;
-  Result: undefined;
+  Question: { answers?: QuestionAnswer[] };
+  Result: { answers: QuestionAnswer[] };
   Settings: undefined;
 };
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Result'>;
+  route: { params: { answers: QuestionAnswer[] } };
 };
 
-export default function ResultScreen({ navigation }: Props) {
+export default function ResultScreen({ navigation, route }: Props) {
   const [results, setResults] = useState<GenreResult[]>([]);
+  const answers = route.params?.answers || [];
 
   useEffect(() => {
     // 推論エンジンからTop3を取得
@@ -25,7 +29,16 @@ export default function ResultScreen({ navigation }: Props) {
     setResults(top3);
   }, []);
 
-  const handleMapSearch = async (genreName: string) => {
+  const handleMapSearch = async (genreId: string, genreName: string) => {
+    // 学習データを保存（このジャンルに興味がある）
+    try {
+      await storageService.saveLearningData(genreId, answers);
+      console.log('学習データ保存:', genreId);
+    } catch (error) {
+      console.error('学習データ保存エラー:', error);
+    }
+
+    // マップ検索
     try {
       const success = await locationService.openMapSearch(genreName);
       if (!success) {
@@ -64,24 +77,12 @@ export default function ResultScreen({ navigation }: Props) {
           </View>
           <Text style={styles.reason}>{result.reason}</Text>
 
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity
-              style={[styles.button, styles.mapButton]}
-              onPress={() => handleMapSearch(result.genre.name)}
-            >
-              <Text style={styles.mapButtonText}>近くで探す</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.selectButton]}
-              onPress={() => {
-                // M5で学習に使用
-                console.log('これにする:', result.genre.name);
-              }}
-            >
-              <Text style={styles.selectButtonText}>これにする</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.mapButton}
+            onPress={() => handleMapSearch(result.genre.id, result.genre.name)}
+          >
+            <Text style={styles.mapButtonText}>近くで探す</Text>
+          </TouchableOpacity>
         </View>
       ))}
 
@@ -148,32 +149,21 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 16,
   },
-  buttonGroup: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
   mapButton: {
     backgroundColor: '#FF6B35',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 4,
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 2,
   },
   mapButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  selectButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#FF6B35',
-  },
-  selectButtonText: {
-    color: '#FF6B35',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
   homeButton: {

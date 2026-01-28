@@ -13,8 +13,8 @@ import {
 
 type RootStackParamList = {
   Home: undefined;
-  Question: undefined;
-  Result: undefined;
+  Question: { answers?: QuestionAnswer[] };
+  Result: { answers: QuestionAnswer[] };
   Settings: undefined;
 };
 
@@ -47,7 +47,7 @@ export default function QuestionScreen({ navigation }: Props) {
     
     if (!nextQuestion) {
       // 質問がなくなった場合も結果へ
-      navigation.navigate('Result');
+      navigation.navigate('Result', { answers });
       return;
     }
 
@@ -79,7 +79,7 @@ export default function QuestionScreen({ navigation }: Props) {
 
       // 継続判定
       if (!questionService.shouldContinue(newAnswers.length)) {
-        navigation.navigate('Result');
+        navigation.navigate('Result', { answers: newAnswers });
         return;
       }
 

@@ -1,6 +1,7 @@
 import { Genre, GenreResult, StatsMap, INFERENCE_CONFIG } from '../types/genre.types';
 import { Question, QuestionAnswer, ANSWER_OPTIONS } from '../types/question.types';
 import genresData from '../data/genres.seed.json';
+import { storageService } from './StorageService';
 
 /**
  * 推論エンジン
@@ -16,6 +17,34 @@ export class InferenceEngine {
     this.stats = this.initializeStats();
     this.genreLogScores = new Map();
     this.resetScores();
+    this.loadStatsFromStorage();
+  }
+
+  /**
+   * ストレージから統計データを読み込み
+   */
+  private async loadStatsFromStorage(): Promise<void> {
+    try {
+      const storedStats = await storageService.getStats();
+      // 既存のstatsとマージ
+      Object.keys(storedStats).forEach(genreId => {
+        if (!this.stats[genreId]) {
+          this.stats[genreId] = {};
+        }
+        Object.keys(storedStats[genreId]).forEach(questionId => {
+          if (!this.stats[genreId][questionId]) {
+            this.stats[genreId][questionId] = {};
+          }
+          Object.keys(storedStats[genreId][questionId]).forEach(answerId => {
+            this.stats[genreId][questionId][answerId] = 
+              storedStats[genreId][questionId][answerId];
+          });
+        });
+      });
+      console.log('統計データをストレージから読み込みました');
+    } catch (error) {
+      console.error('統計データ読み込みエラー:', error);
+    }
   }
 
   /**

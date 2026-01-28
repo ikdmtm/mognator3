@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { storageService } from '../core/services/StorageService';
 
 type RootStackParamList = {
   Home: undefined;
@@ -14,6 +15,17 @@ type Props = {
 };
 
 export default function SettingsScreen({ navigation }: Props) {
+  const [recordCount, setRecordCount] = useState(0);
+
+  useEffect(() => {
+    loadRecordCount();
+  }, []);
+
+  const loadRecordCount = async () => {
+    const count = await storageService.getRecordCount();
+    setRecordCount(count);
+  };
+
   const handleResetLearning = () => {
     Alert.alert(
       '学習データをリセット',
@@ -23,10 +35,14 @@ export default function SettingsScreen({ navigation }: Props) {
         {
           text: 'リセット',
           style: 'destructive',
-          onPress: () => {
-            // M5で実装
-            console.log('学習データをリセット');
-            Alert.alert('完了', '学習データをリセットしました');
+          onPress: async () => {
+            try {
+              await storageService.resetLearningData();
+              await loadRecordCount();
+              Alert.alert('完了', '学習データをリセットしました');
+            } catch (error) {
+              Alert.alert('エラー', '学習データのリセットに失敗しました');
+            }
           },
         },
       ]
@@ -42,10 +58,14 @@ export default function SettingsScreen({ navigation }: Props) {
         {
           text: 'リセット',
           style: 'destructive',
-          onPress: () => {
-            // M5で実装
-            console.log('すべてのデータをリセット');
-            Alert.alert('完了', 'すべてのデータをリセットしました');
+          onPress: async () => {
+            try {
+              await storageService.resetLearningData();
+              await loadRecordCount();
+              Alert.alert('完了', 'すべてのデータをリセットしました');
+            } catch (error) {
+              Alert.alert('エラー', 'データのリセットに失敗しました');
+            }
           },
         },
       ]
@@ -61,6 +81,11 @@ export default function SettingsScreen({ navigation }: Props) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>データ管理</Text>
         
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>学習レコード数</Text>
+          <Text style={styles.settingValue}>{recordCount}件</Text>
+        </View>
+
         <TouchableOpacity
           style={styles.settingItem}
           onPress={handleResetLearning}
@@ -158,6 +183,11 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 16,
     color: '#666',
+  },
+  settingValue: {
+    fontSize: 16,
+    color: '#FF6B35',
+    fontWeight: '600',
   },
   backButton: {
     margin: 20,
