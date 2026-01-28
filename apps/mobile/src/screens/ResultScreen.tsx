@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { inferenceEngine } from '../core/services/InferenceEngine';
+import { locationService } from '../core/services/LocationService';
 import { GenreResult } from '../core/types/genre.types';
 
 type RootStackParamList = {
@@ -23,6 +24,20 @@ export default function ResultScreen({ navigation }: Props) {
     const top3 = inferenceEngine.getTop3();
     setResults(top3);
   }, []);
+
+  const handleMapSearch = async (genreName: string) => {
+    try {
+      const success = await locationService.openMapSearch(genreName);
+      if (!success) {
+        Alert.alert(
+          'エラー',
+          'マップアプリを開けませんでした。デバイスにマップアプリがインストールされていることを確認してください。'
+        );
+      }
+    } catch (error) {
+      Alert.alert('エラー', 'マップの起動に失敗しました。');
+    }
+  };
 
   if (results.length === 0) {
     return (
@@ -52,10 +67,7 @@ export default function ResultScreen({ navigation }: Props) {
           <View style={styles.buttonGroup}>
             <TouchableOpacity
               style={[styles.button, styles.mapButton]}
-              onPress={() => {
-                // M4で実装
-                console.log('近くで探す:', result.genre.name);
-              }}
+              onPress={() => handleMapSearch(result.genre.name)}
             >
               <Text style={styles.mapButtonText}>近くで探す</Text>
             </TouchableOpacity>

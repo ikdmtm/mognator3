@@ -13,14 +13,21 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mognator.mobile"
+      "bundleIdentifier": "com.mognator.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "近くの飲食店を検索するために位置情報を使用します。"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mognator.mobile"
+      "package": "com.mognator.mobile",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
