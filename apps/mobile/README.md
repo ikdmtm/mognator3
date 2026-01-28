@@ -9,7 +9,39 @@
 - マイルストーン: docs/milestones.md
 - QAチェック: docs/qa-checklist.md
 
-## 開発（例：Expo）
+## 開発環境のセットアップ
+
+### 必要な環境
+- Node.js 18以上
+- npm または yarn
+- Expo Go アプリ（iOS/Android実機でテストする場合）
+
+### インストールと起動
+
 ```bash
+# 依存関係のインストール
+cd apps/mobile
 npm install
+
+# 開発サーバーの起動
 npx expo start
+
+# または特定のプラットフォームで起動
+npx expo start --ios      # iOSシミュレータ
+npx expo start --android  # Androidエミュレータ
+```
+
+### 実機でのテスト
+
+1. スマートフォンに「Expo Go」アプリをインストール
+2. 開発サーバー起動後に表示されるQRコードをスキャン
+3. アプリが起動します
+
+## 現在の状態
+
+**M0 (Bootstrap)** - 完了
+- ✅ Expo起動
+- ✅ 画面遷移（Home/Question/Result/Settings）
+- ✅ 基本的なUI実装
+
+次のマイルストーン: **M1 (Question UI)** - 詳細は `docs/milestones.md` を参照
