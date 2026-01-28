@@ -1,0 +1,8 @@
+[
+    { "id": "q_warm", "text": "温かい料理がいい？", "group": "temperature", "enabled": true },
+    { "id": "q_soupy", "text": "汁ものが欲しい？", "group": "soupiness", "enabled": true },
+    { "id": "q_rich", "text": "こってり・脂っこい方がいい？", "group": "richness", "enabled": true },
+    { "id": "q_spicy", "text": "辛い・スパイスが欲しい？", "group": "spice_level", "enabled": true },
+    { "id": "q_rice", "text": "今日はご飯ものがいい？", "group": "staple", "enabled": true }
+  ]
+  
