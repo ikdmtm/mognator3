@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { questionService } from '../core/services/QuestionService';
+import { inferenceEngine } from '../core/services/InferenceEngine';
 import { 
   Question, 
   QuestionAnswer, 
@@ -30,12 +31,14 @@ export default function QuestionScreen({ navigation }: Props) {
   useEffect(() => {
     // セッション開始時にリセット
     questionService.reset();
+    inferenceEngine.reset();
     setAnswers([]);
     loadNextQuestion();
     
     return () => {
       // クリーンアップ
       questionService.reset();
+      inferenceEngine.reset();
     };
   }, []);
 
@@ -70,6 +73,9 @@ export default function QuestionScreen({ navigation }: Props) {
       const newAnswers = [...answers, newAnswer];
       setAnswers(newAnswers);
       questionService.markAsAnswered(currentQuestion.id);
+      
+      // 推論エンジンを更新
+      inferenceEngine.updateWithAnswer(currentQuestion, answerId);
 
       // 継続判定
       if (!questionService.shouldContinue(newAnswers.length)) {

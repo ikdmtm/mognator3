@@ -1,0 +1,22 @@
+[
+  { "id": "ramen_iekei", "name": "家系ラーメン", "enabled": true },
+  { "id": "ramen_tonkotsu", "name": "豚骨ラーメン", "enabled": true },
+  { "id": "ramen_shoyu", "name": "醤油ラーメン", "enabled": true },
+  { "id": "ramen_miso", "name": "味噌ラーメン", "enabled": true },
+  { "id": "ramen_tanmen", "name": "タンメン", "enabled": true },
+  { "id": "curry_spice", "name": "スパイスカレー", "enabled": true },
+  { "id": "curry_katsu", "name": "カツカレー", "enabled": true },
+  { "id": "sushi", "name": "寿司", "enabled": true },
+  { "id": "yakiniku", "name": "焼肉", "enabled": true },
+  { "id": "tonkatsu", "name": "とんかつ", "enabled": true },
+  { "id": "gyoza", "name": "餃子", "enabled": true },
+  { "id": "mapo_tofu", "name": "麻婆豆腐", "enabled": true },
+  { "id": "tantanmen", "name": "担々麺", "enabled": true },
+  { "id": "pasta_tomato", "name": "トマトパスタ", "enabled": true },
+  { "id": "pasta_cream", "name": "クリームパスタ", "enabled": true },
+  { "id": "hamburger", "name": "ハンバーガー", "enabled": true },
+  { "id": "pizza", "name": "ピザ", "enabled": true },
+  { "id": "udon", "name": "うどん", "enabled": true },
+  { "id": "soba", "name": "そば", "enabled": true },
+  { "id": "oyakodon", "name": "親子丼", "enabled": true }
+]

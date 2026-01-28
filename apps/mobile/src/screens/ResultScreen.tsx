@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { inferenceEngine } from '../core/services/InferenceEngine';
+import { GenreResult } from '../core/types/genre.types';
 
 type RootStackParamList = {
   Home: undefined;
@@ -13,26 +15,23 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Result'>;
 };
 
-// ダミーデータ（M2で実際のエンジンから取得）
-const DUMMY_RESULTS = [
-  {
-    genre: '家系ラーメン',
-    probability: 0.72,
-    reason: '温かくてこってりが欲しいみたい',
-  },
-  {
-    genre: 'スパイスカレー',
-    probability: 0.65,
-    reason: '辛くてご飯ものが良さそう',
-  },
-  {
-    genre: '寿司',
-    probability: 0.58,
-    reason: 'さっぱり系が気になる',
-  },
-];
-
 export default function ResultScreen({ navigation }: Props) {
+  const [results, setResults] = useState<GenreResult[]>([]);
+
+  useEffect(() => {
+    // 推論エンジンからTop3を取得
+    const top3 = inferenceEngine.getTop3();
+    setResults(top3);
+  }, []);
+
+  if (results.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text>結果を計算中...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -40,10 +39,10 @@ export default function ResultScreen({ navigation }: Props) {
         <Text style={styles.subtitle}>今の気分に合いそうな食事です</Text>
       </View>
 
-      {DUMMY_RESULTS.map((result, index) => (
+      {results.map((result, index) => (
         <View key={index} style={styles.resultCard}>
           <View style={styles.resultHeader}>
-            <Text style={styles.genreName}>{result.genre}</Text>
+            <Text style={styles.genreName}>{result.genre.name}</Text>
             <Text style={styles.probability}>
               {Math.round(result.probability * 100)}%
             </Text>
@@ -55,7 +54,7 @@ export default function ResultScreen({ navigation }: Props) {
               style={[styles.button, styles.mapButton]}
               onPress={() => {
                 // M4で実装
-                console.log('近くで探す:', result.genre);
+                console.log('近くで探す:', result.genre.name);
               }}
             >
               <Text style={styles.mapButtonText}>近くで探す</Text>
@@ -65,7 +64,7 @@ export default function ResultScreen({ navigation }: Props) {
               style={[styles.button, styles.selectButton]}
               onPress={() => {
                 // M5で学習に使用
-                console.log('これにする:', result.genre);
+                console.log('これにする:', result.genre.name);
               }}
             >
               <Text style={styles.selectButtonText}>これにする</Text>
