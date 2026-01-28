@@ -28,7 +28,11 @@ export default function QuestionScreen({ navigation }: Props) {
 
   // 初期化と次の質問のロード
   useEffect(() => {
+    // セッション開始時にリセット
+    questionService.reset();
+    setAnswers([]);
     loadNextQuestion();
+    
     return () => {
       // クリーンアップ
       questionService.reset();
@@ -175,7 +179,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 20,
+    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
@@ -218,7 +224,7 @@ const styles = StyleSheet.create({
   },
   answersContainer: {
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   answerButton: {
     backgroundColor: '#007AFF',
