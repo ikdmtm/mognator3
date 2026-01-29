@@ -356,31 +356,44 @@ function calculateDistance(
   return R * c;
 }
 
+interface ScoringWeights {
+  rating: number;
+  reviewCount: number;
+  openNow: number;
+  distance: number;
+  priceLevel: number;
+}
+
+const DEFAULT_WEIGHTS: ScoringWeights = {
+  rating: 0.30,
+  reviewCount: 0.20,
+  openNow: 0.25,
+  distance: 0.15,
+  priceLevel: 0.10,
+};
+
 /**
  * 店舗スコアリング
  * 
- * 評価基準と重み：
- * - 評価（rating）: 35% - 品質の最重要指標
+ * 評価基準と重み（デフォルト）：
+ * - 評価（rating）: 30% - 品質の最重要指標
  * - レビュー数（userRatingCount）: 20% - 評価の信頼性
  * - 営業中（openNow）: 25% - 今すぐ行ける利便性
- * - 距離: 20% - 近さの利便性
+ * - 距離: 15% - 近さの利便性
+ * - 価格帯（priceLevel）: 10% - 価格帯の適合度
  */
 function calculatePlaceScore(
   place: Place,
   userLat: number,
   userLng: number,
-  radius: number
+  radius: number,
+  weights: ScoringWeights = DEFAULT_WEIGHTS,
+  preferredPriceLevel?: string
 ): number {
-  const WEIGHT_RATING = 0.35;
-  const WEIGHT_REVIEW_COUNT = 0.20;
-  const WEIGHT_OPEN_NOW = 0.25;
-  const WEIGHT_DISTANCE = 0.20;
-
   // 評価スコア: 0-5 を 0-1 に正規化
   const ratingScore = (place.rating ?? 3.0) / 5.0;
 
   // レビュー数スコア: 対数変換で正規化（1-1000件を想定）
-  // log(count+1) / log(1001) で 0-1 に正規化
   const reviewCount = place.userRatingCount ?? 0;
   const reviewScore = Math.log(reviewCount + 1) / Math.log(1001);
 
@@ -404,12 +417,37 @@ function calculatePlaceScore(
     distanceScore = Math.max(0, 1 - distance / radius);
   }
 
+  // 価格帯スコア: 好みの価格帯に近いほど高スコア
+  let priceLevelScore = 0.5; // 不明またはANYの場合
+  if (place.priceLevel && preferredPriceLevel && preferredPriceLevel !== 'ANY') {
+    const priceLevelMap: Record<string, number> = {
+      'PRICE_LEVEL_FREE': 0,
+      'PRICE_LEVEL_INEXPENSIVE': 1,
+      'PRICE_LEVEL_MODERATE': 2,
+      'PRICE_LEVEL_EXPENSIVE': 3,
+      'PRICE_LEVEL_VERY_EXPENSIVE': 4,
+    };
+    const preferredMap: Record<string, number> = {
+      'INEXPENSIVE': 1,
+      'MODERATE': 2,
+      'EXPENSIVE': 3,
+    };
+    
+    const placePrice = priceLevelMap[place.priceLevel] ?? 2;
+    const preferredPrice = preferredMap[preferredPriceLevel] ?? 2;
+    const priceDiff = Math.abs(placePrice - preferredPrice);
+    
+    // 差が0なら1.0、1なら0.7、2なら0.4、3以上なら0.2
+    priceLevelScore = Math.max(0.2, 1.0 - priceDiff * 0.3);
+  }
+
   // 総合スコア計算
   const totalScore =
-    WEIGHT_RATING * ratingScore +
-    WEIGHT_REVIEW_COUNT * reviewScore +
-    WEIGHT_OPEN_NOW * openScore +
-    WEIGHT_DISTANCE * distanceScore;
+    weights.rating * ratingScore +
+    weights.reviewCount * reviewScore +
+    weights.openNow * openScore +
+    weights.distance * distanceScore +
+    weights.priceLevel * priceLevelScore;
 
   return totalScore;
 }
@@ -438,6 +476,16 @@ export default {
         const lat = parseFloat(url.searchParams.get('lat') || '');
         const lng = parseFloat(url.searchParams.get('lng') || '');
         const radius = parseInt(url.searchParams.get('radius') || '1500');
+        
+        // スコアリング設定（オプション）
+        const weights: ScoringWeights = {
+          rating: parseFloat(url.searchParams.get('w_rating') || String(DEFAULT_WEIGHTS.rating)),
+          reviewCount: parseFloat(url.searchParams.get('w_reviewCount') || String(DEFAULT_WEIGHTS.reviewCount)),
+          openNow: parseFloat(url.searchParams.get('w_openNow') || String(DEFAULT_WEIGHTS.openNow)),
+          distance: parseFloat(url.searchParams.get('w_distance') || String(DEFAULT_WEIGHTS.distance)),
+          priceLevel: parseFloat(url.searchParams.get('w_priceLevel') || String(DEFAULT_WEIGHTS.priceLevel)),
+        };
+        const preferredPriceLevel = url.searchParams.get('preferredPriceLevel') || undefined;
         
         if (!genreId || isNaN(lat) || isNaN(lng)) {
           return new Response(
@@ -472,7 +520,7 @@ export default {
         // スコアリングして並び替え
         const scoredPlaces = (result.places || []).map(place => ({
           ...place,
-          score: calculatePlaceScore(place, lat, lng, radius),
+          score: calculatePlaceScore(place, lat, lng, radius, weights, preferredPriceLevel),
         }));
         
         // スコア降順でソート
