@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,9 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
-  Linking,
-  Alert,
 } from 'react-native';
 import { Place } from '../core/services/PlacesService';
+import PlaceDetailModal from './PlaceDetailModal';
 
 interface Props {
   visible: boolean;
@@ -32,14 +31,17 @@ export default function PlacesModal({
   onClose,
   onOpenMap,
 }: Props) {
-  const handlePlacePress = async (place: Place) => {
-    if (place.googleMapsUri) {
-      try {
-        await Linking.openURL(place.googleMapsUri);
-      } catch {
-        Alert.alert('エラー', 'マップを開けませんでした');
-      }
-    }
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
+
+  const handlePlacePress = (place: Place) => {
+    setSelectedPlace(place);
+    setDetailVisible(true);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailVisible(false);
+    setSelectedPlace(null);
   };
 
   const renderPriceLevel = (priceLevel?: string) => {
@@ -181,6 +183,13 @@ export default function PlacesModal({
             </TouchableOpacity>
           </View>
         )}
+
+        {/* 店舗詳細モーダル */}
+        <PlaceDetailModal
+          visible={detailVisible}
+          place={selectedPlace}
+          onClose={handleCloseDetail}
+        />
       </View>
     </Modal>
   );
