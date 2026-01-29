@@ -1,5 +1,51 @@
-import { Question, QuestionAnswer, QUESTION_CONFIG } from '../types/question.types';
+import { Question, QuestionAnswer, QUESTION_CONFIG, AnswerId } from '../types/question.types';
 import questionsData from '../data/questions.seed.json';
+
+// 矛盾する質問のルール定義
+// キー: 質問ID、値: その質問に「はい」と答えたら除外する質問IDリスト
+const CONFLICT_RULES: Record<string, string[]> = {
+  // 主食系（パン、麺、ご飯は互いに矛盾）
+  'q_bread': ['q_noodles', 'q_rice', 'q_ramen_mood', 'q_curry_mood', 'q_sushi_mood', 'q_donburi_mood', 'q_nabe_mood'],
+  'q_noodles': ['q_bread', 'q_rice', 'q_sushi_mood', 'q_donburi_mood', 'q_yakiniku_mood'],
+  'q_rice': ['q_bread', 'q_noodles', 'q_ramen_mood'],
+  
+  // 直接的な質問（どれかに「はい」なら他を除外）
+  'q_ramen_mood': ['q_curry_mood', 'q_sushi_mood', 'q_yakiniku_mood', 'q_donburi_mood', 'q_nabe_mood', 'q_bread'],
+  'q_curry_mood': ['q_ramen_mood', 'q_sushi_mood', 'q_yakiniku_mood', 'q_donburi_mood', 'q_nabe_mood', 'q_bread'],
+  'q_sushi_mood': ['q_ramen_mood', 'q_curry_mood', 'q_yakiniku_mood', 'q_nabe_mood', 'q_noodles', 'q_bread', 'q_warm'],
+  'q_yakiniku_mood': ['q_ramen_mood', 'q_curry_mood', 'q_sushi_mood', 'q_donburi_mood', 'q_nabe_mood', 'q_noodles', 'q_bread'],
+  'q_donburi_mood': ['q_ramen_mood', 'q_yakiniku_mood', 'q_nabe_mood', 'q_noodles', 'q_bread'],
+  'q_nabe_mood': ['q_ramen_mood', 'q_curry_mood', 'q_sushi_mood', 'q_yakiniku_mood', 'q_donburi_mood', 'q_bread', 'q_cold', 'q_quick'],
+  
+  // 温度系
+  'q_warm': ['q_cold'],
+  'q_cold': ['q_warm', 'q_soupy', 'q_nabe_mood'],
+  
+  // こってり・さっぱり
+  'q_rich': ['q_light', 'q_healthy'],
+  'q_light': ['q_rich', 'q_indulgent'],
+  
+  // 辛さ
+  'q_spicy': [],
+  'q_very_spicy': [],  // 「激辛OK」は「辛いもの」の後に来るべき
+  
+  // 料理系統（複数選択可能だが、強い肯定の場合は絞る）
+  'q_japanese': ['q_korean', 'q_italian', 'q_asian'],
+  'q_korean': ['q_japanese', 'q_italian', 'q_chinese'],
+  'q_italian': ['q_japanese', 'q_korean', 'q_chinese', 'q_asian'],
+  'q_chinese': ['q_korean', 'q_italian'],
+  'q_asian': ['q_japanese', 'q_italian', 'q_western'],
+  'q_western': ['q_asian', 'q_korean', 'q_chinese'],
+  
+  // タンパク質（肉と魚は同時に強く望まない）
+  'q_meat': ['q_raw_fish'],
+  'q_fish': [],
+  'q_raw_fish': ['q_meat', 'q_fried', 'q_grilled', 'q_warm'],
+  
+  // 気分
+  'q_healthy': ['q_rich', 'q_indulgent', 'q_fried'],
+  'q_indulgent': ['q_healthy', 'q_light', 'q_light_meal'],
+};
 
 /**
  * 質問管理サービス
@@ -8,27 +54,50 @@ export class QuestionService {
   private questions: Question[];
   private answeredQuestions: Set<string>;
   private recentGroups: string[];
+  private excludedQuestions: Set<string>;
 
   constructor() {
     this.questions = questionsData as Question[];
     this.answeredQuestions = new Set();
     this.recentGroups = [];
+    this.excludedQuestions = new Set();
   }
 
   /**
-   * 利用可能な質問を取得
+   * 利用可能な質問を取得（矛盾する質問を除外）
    */
   getAvailableQuestions(): Question[] {
-    return this.questions.filter(q => q.enabled && !this.answeredQuestions.has(q.id));
+    return this.questions.filter(q => 
+      q.enabled && 
+      !this.answeredQuestions.has(q.id) &&
+      !this.excludedQuestions.has(q.id)
+    );
   }
 
   /**
-   * 次の質問を選択（情報ゲインベース + グループ連発抑制）
+   * 回答に基づいて矛盾する質問を除外リストに追加
+   */
+  private updateExcludedQuestions(questionId: string, answerId: AnswerId): void {
+    // 「はい」または「たぶんはい」の場合のみ矛盾ルールを適用
+    if (answerId === 'YES' || answerId === 'PROB_YES') {
+      const conflictingQuestions = CONFLICT_RULES[questionId] || [];
+      conflictingQuestions.forEach(q => this.excludedQuestions.add(q));
+    }
+  }
+
+  /**
+   * 次の質問を選択（矛盾除外 + 情報ゲインベース + グループ連発抑制）
    */
   getNextQuestion(
     answers: QuestionAnswer[],
     inferenceEngine?: { getTopGenres(k: number): any[]; calculateQuestionScore(q: Question, genres: any[]): number }
   ): Question | null {
+    // 最新の回答に基づいて除外リストを更新
+    if (answers.length > 0) {
+      const lastAnswer = answers[answers.length - 1];
+      this.updateExcludedQuestions(lastAnswer.questionId, lastAnswer.answerId as AnswerId);
+    }
+
     const available = this.getAvailableQuestions();
     
     if (available.length === 0) {
@@ -102,6 +171,7 @@ export class QuestionService {
   reset(): void {
     this.answeredQuestions.clear();
     this.recentGroups = [];
+    this.excludedQuestions.clear();
   }
 
   /**
