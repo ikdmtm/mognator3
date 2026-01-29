@@ -1,5 +1,7 @@
 import * as SQLite from 'expo-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { QuestionAnswer } from '../types/question.types';
+import { ScoringSettings, DEFAULT_SCORING_SETTINGS } from '../types/scoring.types';
 
 /**
  * 学習履歴の記録
@@ -154,6 +156,35 @@ export class StorageService {
     } catch (error) {
       console.error('レコード数取得エラー:', error);
       return 0;
+    }
+  }
+
+  /**
+   * スコアリング設定を保存
+   */
+  async saveScoringSettings(settings: ScoringSettings): Promise<void> {
+    try {
+      await AsyncStorage.setItem('scoring_settings', JSON.stringify(settings));
+      console.log('スコアリング設定保存完了');
+    } catch (error) {
+      console.error('スコアリング設定保存エラー:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * スコアリング設定を取得
+   */
+  async getScoringSettings(): Promise<ScoringSettings> {
+    try {
+      const data = await AsyncStorage.getItem('scoring_settings');
+      if (data) {
+        return JSON.parse(data);
+      }
+      return DEFAULT_SCORING_SETTINGS;
+    } catch (error) {
+      console.error('スコアリング設定取得エラー:', error);
+      return DEFAULT_SCORING_SETTINGS;
     }
   }
 }

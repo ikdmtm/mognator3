@@ -7,12 +7,14 @@ import HomeScreen from './src/screens/HomeScreen';
 import QuestionScreen from './src/screens/QuestionScreen';
 import ResultScreen from './src/screens/ResultScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import GenreSearchScreen from './src/screens/GenreSearchScreen';
 
 export type RootStackParamList = {
   Home: undefined;
   Question: undefined;
   Result: undefined;
   Settings: undefined;
+  GenreSearch: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -32,6 +34,7 @@ export default function App() {
         <Stack.Screen name="Question" component={QuestionScreen} />
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="GenreSearch" component={GenreSearchScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
