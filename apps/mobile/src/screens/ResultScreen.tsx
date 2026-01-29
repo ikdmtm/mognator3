@@ -56,11 +56,11 @@ export default function ResultScreen({ navigation, route }: Props) {
     try {
       const location = await locationService.getCurrentLocation();
       
-      if (location) {
+      if (location && location.coords) {
         const result = await placesService.searchNearby(
           genreId,
-          location.latitude,
-          location.longitude
+          location.coords.latitude,
+          location.coords.longitude
         );
         
         setPlaces(result.places);
