@@ -13,6 +13,7 @@ import { Genre } from '../core/types/genre.types';
 import genresData from '../core/data/genres.seed.json';
 import { placesService, Place } from '../core/services/PlacesService';
 import { locationService } from '../core/services/LocationService';
+import { storageService } from '../core/services/StorageService';
 import PlacesModal from '../components/PlacesModal';
 
 type RootStackParamList = {
@@ -58,15 +59,20 @@ export default function GenreSearchScreen({ navigation }: Props) {
     setPlacesLoading(true);
     setModalVisible(true);
 
-    // 位置情報を取得して店舗検索
+    // 位置情報とスコアリング設定を取得して店舗検索
     try {
-      const location = await locationService.getCurrentLocation();
+      const [location, scoringSettings] = await Promise.all([
+        locationService.getCurrentLocation(),
+        storageService.getScoringSettings(),
+      ]);
 
       if (location && location.coords) {
         const result = await placesService.searchNearby(
           genre.id,
           location.coords.latitude,
-          location.coords.longitude
+          location.coords.longitude,
+          1500,
+          scoringSettings
         );
 
         setPlaces(result.places);

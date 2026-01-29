@@ -3,6 +3,8 @@
  * Cloudflare Workers経由でGoogle Places APIを呼び出す
  */
 
+import { ScoringSettings } from '../types/scoring.types';
+
 // API設定
 // 注: Expo Go は __DEV__ = true で動作するため、常に本番URLを使用
 const API_BASE_URL = 'https://mognator-api.mognator.workers.dev';
@@ -71,7 +73,8 @@ class PlacesService {
     genreId: string,
     latitude: number,
     longitude: number,
-    radius: number = 1500
+    radius: number = 1500,
+    scoringSettings?: ScoringSettings
   ): Promise<PlacesSearchResult> {
     try {
       const params = new URLSearchParams({
@@ -80,6 +83,19 @@ class PlacesService {
         lng: longitude.toString(),
         radius: radius.toString(),
       });
+
+      // スコアリング設定をクエリパラメータに追加
+      if (scoringSettings) {
+        const { weights, preferredPriceLevel } = scoringSettings;
+        params.append('w_rating', weights.rating.toString());
+        params.append('w_reviewCount', weights.reviewCount.toString());
+        params.append('w_openNow', weights.openNow.toString());
+        params.append('w_distance', weights.distance.toString());
+        params.append('w_priceLevel', weights.priceLevel.toString());
+        if (preferredPriceLevel) {
+          params.append('preferredPriceLevel', preferredPriceLevel);
+        }
+      }
 
       const response = await fetch(`${this.baseUrl}/places/search?${params}`, {
         method: 'GET',
