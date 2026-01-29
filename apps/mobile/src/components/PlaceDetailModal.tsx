@@ -11,7 +11,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import { Place } from '../core/services/PlacesService';
+import { Place, Review } from '../core/services/PlacesService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -34,6 +34,27 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
     }
   };
 
+  const handleCall = async () => {
+    if (place.internationalPhoneNumber) {
+      const phoneUrl = `tel:${place.internationalPhoneNumber.replace(/\s/g, '')}`;
+      try {
+        await Linking.openURL(phoneUrl);
+      } catch {
+        Alert.alert('エラー', '電話をかけられませんでした');
+      }
+    }
+  };
+
+  const handleOpenWebsite = async () => {
+    if (place.websiteUri) {
+      try {
+        await Linking.openURL(place.websiteUri);
+      } catch {
+        Alert.alert('エラー', 'ウェブサイトを開けませんでした');
+      }
+    }
+  };
+
   const renderPriceLevel = (priceLevel?: string) => {
     if (!priceLevel) return null;
     const levels: Record<string, { text: string; color: string }> = {
@@ -44,6 +65,26 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
       PRICE_LEVEL_VERY_EXPENSIVE: { text: '¥¥¥¥ 高級', color: '#FF3B30' },
     };
     return levels[priceLevel] || null;
+  };
+
+  const renderReview = (review: Review, index: number) => {
+    const reviewText = review.text?.text || review.originalText?.text;
+    if (!reviewText) return null;
+
+    return (
+      <View key={index} style={styles.reviewCard}>
+        <View style={styles.reviewHeader}>
+          <Text style={styles.reviewAuthor}>{review.authorAttribution.displayName}</Text>
+          <Text style={styles.reviewTime}>{review.relativePublishTimeDescription}</Text>
+        </View>
+        <View style={styles.reviewRating}>
+          <Text style={styles.reviewStars}>
+            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+          </Text>
+        </View>
+        <Text style={styles.reviewText} numberOfLines={4}>{reviewText}</Text>
+      </View>
+    );
   };
 
   const priceInfo = renderPriceLevel(place.priceLevel);
@@ -137,11 +178,59 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
               )}
             </View>
 
+            {/* アクションボタン（電話・ウェブサイト） */}
+            {(place.internationalPhoneNumber || place.websiteUri) && (
+              <View style={styles.actionButtons}>
+                {place.internationalPhoneNumber && (
+                  <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
+                    <Text style={styles.actionButtonIcon}>📞</Text>
+                    <Text style={styles.actionButtonText}>電話</Text>
+                  </TouchableOpacity>
+                )}
+                {place.websiteUri && (
+                  <TouchableOpacity style={styles.actionButton} onPress={handleOpenWebsite}>
+                    <Text style={styles.actionButtonIcon}>🌐</Text>
+                    <Text style={styles.actionButtonText}>ウェブサイト</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+
             {/* 住所 */}
             {place.formattedAddress && (
-              <View style={styles.addressSection}>
+              <View style={styles.detailSection}>
                 <Text style={styles.sectionLabel}>住所</Text>
-                <Text style={styles.addressText}>{place.formattedAddress}</Text>
+                <Text style={styles.detailText}>{place.formattedAddress}</Text>
+              </View>
+            )}
+
+            {/* 営業時間 */}
+            {place.regularOpeningHours?.weekdayDescriptions && place.regularOpeningHours.weekdayDescriptions.length > 0 && (
+              <View style={styles.detailSection}>
+                <Text style={styles.sectionLabel}>営業時間</Text>
+                {place.regularOpeningHours.weekdayDescriptions.map((desc, idx) => (
+                  <Text key={idx} style={styles.hoursText}>{desc}</Text>
+                ))}
+              </View>
+            )}
+
+            {/* 電話番号 */}
+            {place.internationalPhoneNumber && (
+              <View style={styles.detailSection}>
+                <Text style={styles.sectionLabel}>電話番号</Text>
+                <TouchableOpacity onPress={handleCall}>
+                  <Text style={[styles.detailText, styles.linkText]}>
+                    {place.internationalPhoneNumber}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* レビュー */}
+            {place.reviews && place.reviews.length > 0 && (
+              <View style={styles.reviewsSection}>
+                <Text style={styles.sectionLabel}>最新のレビュー</Text>
+                {place.reviews.slice(0, 3).map((review, idx) => renderReview(review, idx))}
               </View>
             )}
           </View>
@@ -239,7 +328,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  addressSection: {
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 12,
+    borderRadius: 10,
+    gap: 6,
+  },
+  actionButtonIcon: {
+    fontSize: 18,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  detailSection: {
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#E5E5E5',
@@ -247,12 +359,59 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     color: '#999',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
+  detailText: {
+    fontSize: 15,
+    color: '#333',
+    lineHeight: 22,
+  },
+  linkText: {
+    color: '#FF6B35',
+  },
+  hoursText: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 22,
+  },
+  reviewsSection: {
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+  },
+  reviewCard: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 10,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  addressText: {
-    fontSize: 16,
+  reviewAuthor: {
+    fontSize: 14,
+    fontWeight: '600',
     color: '#333',
-    lineHeight: 24,
+  },
+  reviewTime: {
+    fontSize: 12,
+    color: '#999',
+  },
+  reviewRating: {
+    marginBottom: 6,
+  },
+  reviewStars: {
+    fontSize: 12,
+    color: '#FFB800',
+  },
+  reviewText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
   },
   footer: {
     padding: 16,

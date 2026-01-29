@@ -7,6 +7,15 @@
 // 注: Expo Go は __DEV__ = true で動作するため、常に本番URLを使用
 const API_BASE_URL = 'https://mognator-api.mognator.workers.dev';
 
+export interface Review {
+  name: string;
+  rating: number;
+  text?: { text: string; languageCode: string };
+  originalText?: { text: string; languageCode: string };
+  authorAttribution: { displayName: string; photoUri?: string };
+  relativePublishTimeDescription: string;
+}
+
 export interface Place {
   id: string;
   displayName: { text: string; languageCode: string };
@@ -19,6 +28,12 @@ export interface Place {
   currentOpeningHours?: {
     openNow?: boolean;
   };
+  regularOpeningHours?: {
+    weekdayDescriptions?: string[];
+  };
+  internationalPhoneNumber?: string;
+  websiteUri?: string;
+  reviews?: Review[];
   photoUrl?: string | null;
 }
 

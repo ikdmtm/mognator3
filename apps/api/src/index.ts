@@ -181,6 +181,15 @@ interface PlacesTextSearchRequest {
   languageCode: string;
 }
 
+interface Review {
+  name: string;
+  rating: number;
+  text?: { text: string; languageCode: string };
+  originalText?: { text: string; languageCode: string };
+  authorAttribution: { displayName: string; photoUri?: string };
+  relativePublishTimeDescription: string;
+}
+
 interface Place {
   id: string;
   displayName: { text: string; languageCode: string };
@@ -193,6 +202,12 @@ interface Place {
   currentOpeningHours?: {
     openNow?: boolean;
   };
+  regularOpeningHours?: {
+    weekdayDescriptions?: string[];
+  };
+  internationalPhoneNumber?: string;
+  websiteUri?: string;
+  reviews?: Review[];
   photos?: Array<{ name: string }>;
 }
 
@@ -222,12 +237,30 @@ async function searchNearby(
     },
   };
   
+  // 詳細情報を含むフィールドマスク
+  const fieldMask = [
+    'places.id',
+    'places.displayName',
+    'places.formattedAddress',
+    'places.rating',
+    'places.userRatingCount',
+    'places.priceLevel',
+    'places.location',
+    'places.googleMapsUri',
+    'places.currentOpeningHours',
+    'places.regularOpeningHours',
+    'places.internationalPhoneNumber',
+    'places.websiteUri',
+    'places.reviews',
+    'places.photos',
+  ].join(',');
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
-      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.location,places.googleMapsUri,places.currentOpeningHours,places.photos',
+      'X-Goog-FieldMask': fieldMask,
     },
     body: JSON.stringify(body),
   });
@@ -263,12 +296,30 @@ async function searchText(
     languageCode: 'ja',
   };
   
+  // 詳細情報を含むフィールドマスク
+  const fieldMask = [
+    'places.id',
+    'places.displayName',
+    'places.formattedAddress',
+    'places.rating',
+    'places.userRatingCount',
+    'places.priceLevel',
+    'places.location',
+    'places.googleMapsUri',
+    'places.currentOpeningHours',
+    'places.regularOpeningHours',
+    'places.internationalPhoneNumber',
+    'places.websiteUri',
+    'places.reviews',
+    'places.photos',
+  ].join(',');
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
-      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.priceLevel,places.location,places.googleMapsUri,places.currentOpeningHours,places.photos',
+      'X-Goog-FieldMask': fieldMask,
     },
     body: JSON.stringify(body),
   });
