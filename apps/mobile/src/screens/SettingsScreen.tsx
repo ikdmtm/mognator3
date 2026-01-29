@@ -29,7 +29,7 @@ export default function SettingsScreen({ navigation }: Props) {
   const handleResetLearning = () => {
     Alert.alert(
       '学習データをリセット',
-      '学習した履歴をすべて削除します。よろしいですか？',
+      '学習した履歴をすべて削除し、初期状態に戻します。よろしいですか？',
       [
         { text: 'キャンセル', style: 'cancel' },
         {
@@ -42,29 +42,6 @@ export default function SettingsScreen({ navigation }: Props) {
               Alert.alert('完了', '学習データをリセットしました');
             } catch (error) {
               Alert.alert('エラー', '学習データのリセットに失敗しました');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleResetAll = () => {
-    Alert.alert(
-      'すべてのデータをリセット',
-      'すべてのデータを初期状態に戻します。よろしいですか？',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: 'リセット',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await storageService.resetLearningData();
-              await loadRecordCount();
-              Alert.alert('完了', 'すべてのデータをリセットしました');
-            } catch (error) {
-              Alert.alert('エラー', 'データのリセットに失敗しました');
             }
           },
         },
@@ -90,21 +67,11 @@ export default function SettingsScreen({ navigation }: Props) {
           style={styles.settingItem}
           onPress={handleResetLearning}
         >
-          <Text style={styles.settingText}>学習データをリセット</Text>
-          <Text style={styles.settingDescription}>
-            これまでの学習履歴を削除します
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.settingItem}
-          onPress={handleResetAll}
-        >
           <Text style={[styles.settingText, styles.dangerText]}>
-            すべてのデータをリセット
+            学習データをリセット
           </Text>
           <Text style={styles.settingDescription}>
-            すべてのデータを初期状態に戻します
+            これまでの学習履歴を削除し、初期状態に戻します
           </Text>
         </TouchableOpacity>
       </View>
