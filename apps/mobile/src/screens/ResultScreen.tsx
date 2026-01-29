@@ -4,8 +4,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { inferenceEngine } from '../core/services/InferenceEngine';
 import { locationService } from '../core/services/LocationService';
 import { storageService } from '../core/services/StorageService';
+import { placesService, Place } from '../core/services/PlacesService';
 import { GenreResult } from '../core/types/genre.types';
 import { QuestionAnswer } from '../core/types/question.types';
+import PlacesModal from '../components/PlacesModal';
 
 type RootStackParamList = {
   Home: undefined;
@@ -21,6 +23,11 @@ type Props = {
 
 export default function ResultScreen({ navigation, route }: Props) {
   const [results, setResults] = useState<GenreResult[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState<{ id: string; name: string } | null>(null);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [placesLoading, setPlacesLoading] = useState(false);
+  const [placesError, setPlacesError] = useState<string | undefined>();
   const answers = route.params?.answers || [];
 
   useEffect(() => {
@@ -29,7 +36,7 @@ export default function ResultScreen({ navigation, route }: Props) {
     setResults(top3);
   }, []);
 
-  const handleMapSearch = async (genreId: string, genreName: string) => {
+  const handleSearchPlaces = async (genreId: string, genreName: string) => {
     // 学習データを保存（このジャンルに興味がある）
     try {
       await storageService.saveLearningData(genreId, answers);
@@ -38,18 +45,56 @@ export default function ResultScreen({ navigation, route }: Props) {
       console.error('学習データ保存エラー:', error);
     }
 
-    // マップ検索
+    // モーダルを開く
+    setSelectedGenre({ id: genreId, name: genreName });
+    setPlaces([]);
+    setPlacesError(undefined);
+    setPlacesLoading(true);
+    setModalVisible(true);
+
+    // 位置情報を取得して店舗検索
+    try {
+      const location = await locationService.getCurrentLocation();
+      
+      if (location) {
+        const result = await placesService.searchNearby(
+          genreId,
+          location.latitude,
+          location.longitude
+        );
+        
+        setPlaces(result.places);
+        setPlacesError(result.error);
+      } else {
+        setPlacesError('位置情報を取得できませんでした');
+      }
+    } catch (error) {
+      console.error('Places search error:', error);
+      setPlacesError('検索に失敗しました');
+    } finally {
+      setPlacesLoading(false);
+    }
+  };
+
+  const handleOpenMap = async (genreName: string) => {
     try {
       const success = await locationService.openMapSearch(genreName);
       if (!success) {
         Alert.alert(
           'エラー',
-          'マップアプリを開けませんでした。デバイスにマップアプリがインストールされていることを確認してください。'
+          'マップアプリを開けませんでした。'
         );
       }
     } catch (error) {
       Alert.alert('エラー', 'マップの起動に失敗しました。');
     }
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedGenre(null);
+    setPlaces([]);
+    setPlacesError(undefined);
   };
 
   if (results.length === 0) {
@@ -79,7 +124,7 @@ export default function ResultScreen({ navigation, route }: Props) {
 
           <TouchableOpacity
             style={styles.mapButton}
-            onPress={() => handleMapSearch(result.genre.id, result.genre.name)}
+            onPress={() => handleSearchPlaces(result.genre.id, result.genre.name)}
           >
             <Text style={styles.mapButtonText}>近くで探す</Text>
           </TouchableOpacity>
@@ -92,6 +137,17 @@ export default function ResultScreen({ navigation, route }: Props) {
       >
         <Text style={styles.homeButtonText}>ホームに戻る</Text>
       </TouchableOpacity>
+
+      {/* 店舗リストモーダル */}
+      <PlacesModal
+        visible={modalVisible}
+        genreName={selectedGenre?.name || ''}
+        places={places}
+        loading={placesLoading}
+        error={placesError}
+        onClose={handleCloseModal}
+        onOpenMap={handleOpenMap}
+      />
     </ScrollView>
   );
 }

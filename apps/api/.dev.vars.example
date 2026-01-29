@@ -1,0 +1,5 @@
+# Google Places API キー
+# このファイルを .dev.vars にコピーして、実際のAPIキーを設定してください
+# cp .dev.vars.example .dev.vars
+
+GOOGLE_PLACES_API_KEY=your_api_key_here

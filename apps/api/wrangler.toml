@@ -1,0 +1,14 @@
+name = "mognator-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-27"
+
+# 開発環境
+[env.dev]
+name = "mognator-api-dev"
+
+# 本番環境
+[env.production]
+name = "mognator-api"
+
+# 環境変数（実際の値はwrangler secretで設定）
+# wrangler secret put GOOGLE_PLACES_API_KEY
