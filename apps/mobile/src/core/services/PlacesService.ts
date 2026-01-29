@@ -3,10 +3,9 @@
  * Cloudflare Workers経由でGoogle Places APIを呼び出す
  */
 
-// API設定（デプロイ後に更新）
-const API_BASE_URL = __DEV__ 
-  ? 'http://localhost:8787'  // ローカル開発
-  : 'https://mognator-api.mognator.workers.dev';  // 本番URL（要更新）
+// API設定
+// 注: Expo Go は __DEV__ = true で動作するため、常に本番URLを使用
+const API_BASE_URL = 'https://mognator-api.mognator.workers.dev';
 
 export interface Place {
   id: string;
