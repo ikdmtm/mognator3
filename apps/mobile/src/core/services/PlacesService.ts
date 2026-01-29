@@ -35,6 +35,7 @@ export interface Place {
   websiteUri?: string;
   reviews?: Review[];
   photoUrl?: string | null;
+  photoUrls?: string[];
 }
 
 export interface PlacesSearchResult {

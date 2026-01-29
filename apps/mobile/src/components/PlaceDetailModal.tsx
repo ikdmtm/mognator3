@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
   Linking,
   Alert,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { Place, Review } from '../core/services/PlacesService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const PHOTO_HEIGHT = SCREEN_WIDTH * 0.6;
 
 interface Props {
   visible: boolean;
@@ -22,7 +24,15 @@ interface Props {
 }
 
 export default function PlaceDetailModal({ visible, place, onClose }: Props) {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  
   if (!place) return null;
+
+  const photos = place.photoUrls && place.photoUrls.length > 0 
+    ? place.photoUrls 
+    : place.photoUrl 
+      ? [place.photoUrl] 
+      : [];
 
   const handleOpenMap = async () => {
     if (place.googleMapsUri) {
@@ -105,13 +115,35 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* 写真 */}
-          {place.photoUrl ? (
-            <Image
-              source={{ uri: place.photoUrl }}
-              style={styles.heroImage}
-              resizeMode="cover"
-            />
+          {/* 写真ギャラリー */}
+          {photos.length > 0 ? (
+            <View>
+              <FlatList
+                data={photos}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={(e) => {
+                  const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+                  setCurrentPhotoIndex(index);
+                }}
+                renderItem={({ item }) => (
+                  <Image
+                    source={{ uri: item }}
+                    style={styles.heroImage}
+                    resizeMode="cover"
+                  />
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
+              {photos.length > 1 && (
+                <View style={styles.photoIndicator}>
+                  <Text style={styles.photoIndicatorText}>
+                    {currentPhotoIndex + 1} / {photos.length}
+                  </Text>
+                </View>
+              )}
+            </View>
           ) : (
             <View style={[styles.heroImage, styles.noImage]}>
               <Text style={styles.noImageText}>写真なし</Text>
@@ -229,8 +261,8 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
             {/* レビュー */}
             {place.reviews && place.reviews.length > 0 && (
               <View style={styles.reviewsSection}>
-                <Text style={styles.sectionLabel}>最新のレビュー</Text>
-                {place.reviews.slice(0, 3).map((review, idx) => renderReview(review, idx))}
+                <Text style={styles.sectionLabel}>おすすめレビュー</Text>
+                {place.reviews.slice(0, 5).map((review, idx) => renderReview(review, idx))}
               </View>
             )}
           </View>
@@ -270,8 +302,22 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH * 0.6,
+    height: PHOTO_HEIGHT,
     backgroundColor: '#E0E0E0',
+  },
+  photoIndicator: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  photoIndicatorText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
   },
   noImage: {
     justifyContent: 'center',

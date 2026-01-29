@@ -478,13 +478,18 @@ export default {
         // スコア降順でソート
         scoredPlaces.sort((a, b) => b.score - a.score);
         
-        // 写真URLを付与（上位10件）
-        const placesWithPhotos = scoredPlaces.slice(0, 10).map(place => ({
-          ...place,
-          photoUrl: place.photos?.[0]?.name 
-            ? getPhotoUrl(place.photos[0].name, env.GOOGLE_PLACES_API_KEY)
-            : null,
-        }));
+        // 写真URLを付与（上位10件、最大5枚の写真）
+        const placesWithPhotos = scoredPlaces.slice(0, 10).map(place => {
+          const photoUrls = (place.photos || [])
+            .slice(0, 5)
+            .map(photo => getPhotoUrl(photo.name, env.GOOGLE_PLACES_API_KEY));
+          
+          return {
+            ...place,
+            photoUrl: photoUrls[0] || null,  // 後方互換性のため
+            photoUrls: photoUrls,
+          };
+        });
         
         return new Response(
           JSON.stringify({ places: placesWithPhotos }),
