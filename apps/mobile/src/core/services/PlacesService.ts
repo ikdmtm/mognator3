@@ -6,7 +6,7 @@
 // API設定（デプロイ後に更新）
 const API_BASE_URL = __DEV__ 
   ? 'http://localhost:8787'  // ローカル開発
-  : 'https://mognator-api.YOUR_SUBDOMAIN.workers.dev';  // 本番URL（要更新）
+  : 'https://mognator-api.mognator.workers.dev';  // 本番URL（要更新）
 
 export interface Place {
   id: string;
