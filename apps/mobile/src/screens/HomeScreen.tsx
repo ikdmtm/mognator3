@@ -37,8 +37,13 @@ export default function HomeScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('GenreSearch')}
           >
             <Text style={styles.secondaryButtonText}>ジャンルから探す</Text>
-            <Text style={styles.buttonSubtext}>食べたいものが決まっている方へ</Text>
+            <Text style={styles.secondaryButtonSubtext}>食べたいものが決まっている方へ</Text>
           </TouchableOpacity>
+
+          <Text style={styles.algorithmNote}>
+            ※ 独自のスコアリングアルゴリズムで{'\n'}
+            あなたに最適な店舗をおすすめします
+          </Text>
         </View>
       </View>
 
@@ -120,10 +125,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 4,
   },
+  secondaryButtonSubtext: {
+    color: '#666',
+    fontSize: 12,
+    opacity: 0.9,
+  },
+  algorithmNote: {
+    marginTop: 20,
+    fontSize: 13,
+    color: '#999',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
   settingsButton: {
     alignSelf: 'center',
     paddingHorizontal: 24,
     paddingVertical: 12,
+    marginBottom: 32,
   },
   settingsButtonText: {
     color: '#FF6B35',

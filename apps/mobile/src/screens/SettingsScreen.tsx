@@ -63,6 +63,28 @@ export default function SettingsScreen({ navigation }: Props) {
     await storageService.saveScoringSettings(newSettings);
   };
 
+  const handleWeightChange = async (
+    key: 'rating' | 'reviewCount' | 'openNow' | 'distance' | 'priceLevel',
+    delta: number
+  ) => {
+    const currentWeight = scoringSettings.weights[key];
+    let newWeight = Math.max(0, Math.min(1, currentWeight + delta));
+    
+    // 小数点第2位で丸める
+    newWeight = Math.round(newWeight * 100) / 100;
+    
+    const newSettings = {
+      ...scoringSettings,
+      weights: {
+        ...scoringSettings.weights,
+        [key]: newWeight,
+      },
+    };
+    
+    setScoringSettings(newSettings);
+    await storageService.saveScoringSettings(newSettings);
+  };
+
   const handleResetScoring = async () => {
     Alert.alert(
       'スコアリング設定をリセット',
@@ -124,6 +146,133 @@ export default function SettingsScreen({ navigation }: Props) {
                   </Text>
                 </TouchableOpacity>
               ))}
+            </View>
+          </View>
+
+          <View style={styles.settingItem}>
+            <Text style={styles.settingText}>重み付け調整</Text>
+            <Text style={styles.settingDescription}>
+              各要素の重要度を調整できます（合計は100%である必要はありません）
+            </Text>
+          </View>
+
+          {/* 評価 */}
+          <View style={styles.weightItem}>
+            <View style={styles.weightHeader}>
+              <Text style={styles.weightLabel}>評価 (⭐)</Text>
+              <Text style={styles.weightValue}>
+                {(scoringSettings.weights.rating * 100).toFixed(0)}%
+              </Text>
+            </View>
+            <View style={styles.weightControls}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('rating', -0.05)}
+              >
+                <Text style={styles.weightButtonText}>-5%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('rating', 0.05)}
+              >
+                <Text style={styles.weightButtonText}>+5%</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* レビュー数 */}
+          <View style={styles.weightItem}>
+            <View style={styles.weightHeader}>
+              <Text style={styles.weightLabel}>レビュー数</Text>
+              <Text style={styles.weightValue}>
+                {(scoringSettings.weights.reviewCount * 100).toFixed(0)}%
+              </Text>
+            </View>
+            <View style={styles.weightControls}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('reviewCount', -0.05)}
+              >
+                <Text style={styles.weightButtonText}>-5%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('reviewCount', 0.05)}
+              >
+                <Text style={styles.weightButtonText}>+5%</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* 営業中 */}
+          <View style={styles.weightItem}>
+            <View style={styles.weightHeader}>
+              <Text style={styles.weightLabel}>営業中</Text>
+              <Text style={styles.weightValue}>
+                {(scoringSettings.weights.openNow * 100).toFixed(0)}%
+              </Text>
+            </View>
+            <View style={styles.weightControls}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('openNow', -0.05)}
+              >
+                <Text style={styles.weightButtonText}>-5%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('openNow', 0.05)}
+              >
+                <Text style={styles.weightButtonText}>+5%</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* 距離 */}
+          <View style={styles.weightItem}>
+            <View style={styles.weightHeader}>
+              <Text style={styles.weightLabel}>距離（近さ）</Text>
+              <Text style={styles.weightValue}>
+                {(scoringSettings.weights.distance * 100).toFixed(0)}%
+              </Text>
+            </View>
+            <View style={styles.weightControls}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('distance', -0.05)}
+              >
+                <Text style={styles.weightButtonText}>-5%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('distance', 0.05)}
+              >
+                <Text style={styles.weightButtonText}>+5%</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* 価格帯適合度 */}
+          <View style={styles.weightItem}>
+            <View style={styles.weightHeader}>
+              <Text style={styles.weightLabel}>価格帯適合度</Text>
+              <Text style={styles.weightValue}>
+                {(scoringSettings.weights.priceLevel * 100).toFixed(0)}%
+              </Text>
+            </View>
+            <View style={styles.weightControls}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('priceLevel', -0.05)}
+              >
+                <Text style={styles.weightButtonText}>-5%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => handleWeightChange('priceLevel', 0.05)}
+              >
+                <Text style={styles.weightButtonText}>+5%</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -257,6 +406,47 @@ const styles = StyleSheet.create({
   },
   optionButtonTextActive: {
     color: '#fff',
+  },
+  weightItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  weightHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  weightLabel: {
+    fontSize: 15,
+    color: '#333',
+    fontWeight: '500',
+  },
+  weightValue: {
+    fontSize: 16,
+    color: '#FF6B35',
+    fontWeight: '600',
+  },
+  weightControls: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  weightButton: {
+    flex: 1,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  weightButtonText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
   infoItem: {
     flexDirection: 'row',
