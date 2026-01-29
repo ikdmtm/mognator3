@@ -160,6 +160,7 @@ const corsHeaders = {
 interface PlacesNearbyRequest {
   includedTypes?: string[];
   maxResultCount: number;
+  languageCode: string;
   locationRestriction: {
     circle: {
       center: { latitude: number; longitude: number };
@@ -212,6 +213,7 @@ async function searchNearby(
   const body: PlacesNearbyRequest = {
     includedTypes: types,
     maxResultCount: 10,
+    languageCode: 'ja',
     locationRestriction: {
       circle: {
         center: { latitude: lat, longitude: lng },
@@ -285,6 +287,82 @@ function getPhotoUrl(photoName: string, apiKey: string, maxWidth: number = 400):
   return `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=${maxWidth}&key=${apiKey}`;
 }
 
+// 2点間の距離を計算（ハーバーサイン公式、メートル単位）
+function calculateDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371000; // 地球の半径（メートル）
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/**
+ * 店舗スコアリング
+ * 
+ * 評価基準と重み：
+ * - 評価（rating）: 35% - 品質の最重要指標
+ * - レビュー数（userRatingCount）: 20% - 評価の信頼性
+ * - 営業中（openNow）: 25% - 今すぐ行ける利便性
+ * - 距離: 20% - 近さの利便性
+ */
+function calculatePlaceScore(
+  place: Place,
+  userLat: number,
+  userLng: number,
+  radius: number
+): number {
+  const WEIGHT_RATING = 0.35;
+  const WEIGHT_REVIEW_COUNT = 0.20;
+  const WEIGHT_OPEN_NOW = 0.25;
+  const WEIGHT_DISTANCE = 0.20;
+
+  // 評価スコア: 0-5 を 0-1 に正規化
+  const ratingScore = (place.rating ?? 3.0) / 5.0;
+
+  // レビュー数スコア: 対数変換で正規化（1-1000件を想定）
+  // log(count+1) / log(1001) で 0-1 に正規化
+  const reviewCount = place.userRatingCount ?? 0;
+  const reviewScore = Math.log(reviewCount + 1) / Math.log(1001);
+
+  // 営業中スコア: 営業中なら1、それ以外は0.3（閉店でも候補として残す）
+  let openScore = 0.5; // 不明の場合
+  if (place.currentOpeningHours?.openNow === true) {
+    openScore = 1.0;
+  } else if (place.currentOpeningHours?.openNow === false) {
+    openScore = 0.3;
+  }
+
+  // 距離スコア: 近いほど高スコア（radius内で線形減衰）
+  let distanceScore = 1.0;
+  if (place.location) {
+    const distance = calculateDistance(
+      userLat,
+      userLng,
+      place.location.latitude,
+      place.location.longitude
+    );
+    distanceScore = Math.max(0, 1 - distance / radius);
+  }
+
+  // 総合スコア計算
+  const totalScore =
+    WEIGHT_RATING * ratingScore +
+    WEIGHT_REVIEW_COUNT * reviewScore +
+    WEIGHT_OPEN_NOW * openScore +
+    WEIGHT_DISTANCE * distanceScore;
+
+  return totalScore;
+}
+
 // メインハンドラー
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -340,13 +418,22 @@ export default {
           }
         }
         
-        // 写真URLを付与
-        const placesWithPhotos = result.places?.map(place => ({
+        // スコアリングして並び替え
+        const scoredPlaces = (result.places || []).map(place => ({
+          ...place,
+          score: calculatePlaceScore(place, lat, lng, radius),
+        }));
+        
+        // スコア降順でソート
+        scoredPlaces.sort((a, b) => b.score - a.score);
+        
+        // 写真URLを付与（上位10件）
+        const placesWithPhotos = scoredPlaces.slice(0, 10).map(place => ({
           ...place,
           photoUrl: place.photos?.[0]?.name 
             ? getPhotoUrl(place.photos[0].name, env.GOOGLE_PLACES_API_KEY)
             : null,
-        })) || [];
+        }));
         
         return new Response(
           JSON.stringify({ places: placesWithPhotos }),
