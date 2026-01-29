@@ -13,7 +13,6 @@
   { "id": "q_rice", "text": "ご飯ものがいい？", "group": "staple", "enabled": true },
   { "id": "q_noodles", "text": "麺類が食べたい？", "group": "staple", "enabled": true },
   { "id": "q_bread", "text": "パン系がいい？", "group": "staple", "enabled": true },
-  { "id": "q_no_carb", "text": "炭水化物少なめがいい？", "group": "staple", "enabled": true },
   
   { "id": "q_meat", "text": "肉が食べたい？", "group": "protein", "enabled": true },
   { "id": "q_fish", "text": "魚介が食べたい？", "group": "protein", "enabled": true },
@@ -41,8 +40,7 @@
   { "id": "q_share", "text": "みんなでシェアしたい？", "group": "style", "enabled": true },
   
   { "id": "q_healthy", "text": "ヘルシーなものがいい？", "group": "mood", "enabled": true },
-  { "id": "q_indulgent", "text": "今日はがっつり贅沢したい？", "group": "mood", "enabled": true },
-  { "id": "q_comfort", "text": "ホッとするものが食べたい？", "group": "mood", "enabled": true },
+  { "id": "q_indulgent", "text": "今日は贅沢したい？", "group": "mood", "enabled": true },
   
   { "id": "q_cheese", "text": "チーズが好き？", "group": "ingredient", "enabled": true },
   { "id": "q_garlic", "text": "にんにく効いてるのがいい？", "group": "ingredient", "enabled": true },
@@ -53,5 +51,6 @@
   { "id": "q_curry_mood", "text": "カレーの気分？", "group": "direct", "enabled": true },
   { "id": "q_sushi_mood", "text": "寿司・海鮮丼の気分？", "group": "direct", "enabled": true },
   { "id": "q_yakiniku_mood", "text": "焼肉の気分？", "group": "direct", "enabled": true },
-  { "id": "q_donburi_mood", "text": "丼ものの気分？", "group": "direct", "enabled": true }
+  { "id": "q_donburi_mood", "text": "丼ものの気分？", "group": "direct", "enabled": true },
+  { "id": "q_nabe_mood", "text": "鍋の気分？", "group": "direct", "enabled": true }
 ]
