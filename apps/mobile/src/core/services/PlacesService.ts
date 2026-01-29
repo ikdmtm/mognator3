@@ -119,6 +119,58 @@ class PlacesService {
   }
 
   /**
+   * フリーテキストで店舗を検索
+   */
+  async searchByKeyword(
+    keyword: string,
+    latitude: number,
+    longitude: number,
+    radius: number = 1500,
+    scoringSettings?: ScoringSettings
+  ): Promise<PlacesSearchResult> {
+    try {
+      const params = new URLSearchParams({
+        keyword: keyword,
+        lat: latitude.toString(),
+        lng: longitude.toString(),
+        radius: radius.toString(),
+      });
+
+      // スコアリング設定をクエリパラメータに追加
+      if (scoringSettings) {
+        const { weights, preferredPriceLevel } = scoringSettings;
+        params.append('w_rating', weights.rating.toString());
+        params.append('w_reviewCount', weights.reviewCount.toString());
+        params.append('w_openNow', weights.openNow.toString());
+        params.append('w_distance', weights.distance.toString());
+        params.append('w_priceLevel', weights.priceLevel.toString());
+        if (preferredPriceLevel) {
+          params.append('preferredPriceLevel', preferredPriceLevel);
+        }
+      }
+
+      const response = await fetch(`${this.baseUrl}/places/search?${params}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Places API error:', error);
+        return { places: [], error: error.error || 'API error' };
+      }
+
+      const data = await response.json();
+      return { places: data.places || [] };
+    } catch (error) {
+      console.error('Network error:', error);
+      return { places: [], error: 'Network error' };
+    }
+  }
+
+  /**
    * ヘルスチェック
    */
   async healthCheck(): Promise<boolean> {

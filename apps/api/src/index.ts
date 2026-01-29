@@ -473,6 +473,7 @@ export default {
     if (url.pathname === '/places/search') {
       try {
         const genreId = url.searchParams.get('genre');
+        const keyword = url.searchParams.get('keyword'); // フリーテキスト検索用
         const lat = parseFloat(url.searchParams.get('lat') || '');
         const lng = parseFloat(url.searchParams.get('lng') || '');
         const radius = parseInt(url.searchParams.get('radius') || '1500');
@@ -487,34 +488,43 @@ export default {
         };
         const preferredPriceLevel = url.searchParams.get('preferredPriceLevel') || undefined;
         
-        if (!genreId || isNaN(lat) || isNaN(lng)) {
+        if ((!genreId && !keyword) || isNaN(lat) || isNaN(lng)) {
           return new Response(
-            JSON.stringify({ error: 'Missing required parameters: genre, lat, lng' }),
+            JSON.stringify({ error: 'Missing required parameters: (genre or keyword), lat, lng' }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
         let result: PlacesResponse;
         
-        // まずNearby Searchを試す
-        const placeTypes = GENRE_TO_PLACES_TYPE[genreId];
-        if (placeTypes && placeTypes.length > 0) {
-          result = await searchNearby(env, placeTypes, lat, lng, radius);
-        } else {
-          result = { places: [] };
-        }
-        
-        // 結果が少なければText Searchで補完
-        if (!result.places || result.places.length < 5) {
-          const keyword = GENRE_TO_SEARCH_KEYWORD[genreId] || genreId;
-          const textResult = await searchText(env, keyword, lat, lng, radius);
-          
-          if (textResult.places) {
-            // 重複を除いて結果をマージ
-            const existingIds = new Set(result.places?.map(p => p.id) || []);
-            const newPlaces = textResult.places.filter(p => !existingIds.has(p.id));
-            result.places = [...(result.places || []), ...newPlaces].slice(0, 10);
+        // フリーテキスト検索の場合
+        if (keyword && !genreId) {
+          result = await searchText(env, keyword, lat, lng, radius);
+        } else if (genreId) {
+          // ジャンルIDベース検索
+          // まずNearby Searchを試す
+          const placeTypes = GENRE_TO_PLACES_TYPE[genreId];
+          if (placeTypes && placeTypes.length > 0) {
+            result = await searchNearby(env, placeTypes, lat, lng, radius);
+          } else {
+            result = { places: [] };
           }
+          
+          // 結果が少なければText Searchで補完
+          if (!result.places || result.places.length < 5) {
+            const genreKeyword = GENRE_TO_SEARCH_KEYWORD[genreId] || genreId;
+            const textResult = await searchText(env, genreKeyword, lat, lng, radius);
+            
+            if (textResult.places) {
+              // 重複を除いて結果をマージ
+              const existingIds = new Set(result.places?.map(p => p.id) || []);
+              const newPlaces = textResult.places.filter(p => !existingIds.has(p.id));
+              result.places = [...(result.places || []), ...newPlaces].slice(0, 10);
+            }
+          }
+        } else {
+          // genreもkeywordもない場合（エラー処理済み）
+          result = { places: [] };
         }
         
         // スコアリングして並び替え

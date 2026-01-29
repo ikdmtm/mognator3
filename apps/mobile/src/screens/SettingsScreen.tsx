@@ -150,9 +150,18 @@ export default function SettingsScreen({ navigation }: Props) {
           </View>
 
           <View style={styles.settingItem}>
-            <Text style={styles.settingText}>重み付け調整</Text>
+            <View style={styles.weightTotalHeader}>
+              <Text style={styles.settingText}>重み付け調整</Text>
+              <Text style={styles.weightTotal}>
+                合計: {((scoringSettings.weights.rating + 
+                         scoringSettings.weights.reviewCount + 
+                         scoringSettings.weights.openNow + 
+                         scoringSettings.weights.distance + 
+                         scoringSettings.weights.priceLevel) * 100).toFixed(0)}%
+              </Text>
+            </View>
             <Text style={styles.settingDescription}>
-              各要素の重要度を調整できます（合計は100%である必要はありません）
+              各要素の重要度を調整できます
             </Text>
           </View>
 
@@ -406,6 +415,17 @@ const styles = StyleSheet.create({
   },
   optionButtonTextActive: {
     color: '#fff',
+  },
+  weightTotalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  weightTotal: {
+    fontSize: 16,
+    color: '#FF6B35',
+    fontWeight: '600',
   },
   weightItem: {
     paddingVertical: 12,

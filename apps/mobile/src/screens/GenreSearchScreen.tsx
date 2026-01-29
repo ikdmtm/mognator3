@@ -88,6 +88,46 @@ export default function GenreSearchScreen({ navigation }: Props) {
     }
   };
 
+  const handleFreeTextSearch = async () => {
+    if (searchQuery.trim() === '') {
+      return;
+    }
+
+    setSelectedGenre({ id: 'custom', name: searchQuery.trim() });
+    setPlaces([]);
+    setPlacesError(undefined);
+    setPlacesLoading(true);
+    setModalVisible(true);
+
+    // 位置情報とスコアリング設定を取得してフリーテキスト検索
+    try {
+      const [location, scoringSettings] = await Promise.all([
+        locationService.getCurrentLocation(),
+        storageService.getScoringSettings(),
+      ]);
+
+      if (location && location.coords) {
+        const result = await placesService.searchByKeyword(
+          searchQuery.trim(),
+          location.coords.latitude,
+          location.coords.longitude,
+          1500,
+          scoringSettings
+        );
+
+        setPlaces(result.places);
+        setPlacesError(result.error);
+      } else {
+        setPlacesError('位置情報を取得できませんでした');
+      }
+    } catch (error) {
+      console.error('Places search error:', error);
+      setPlacesError('検索に失敗しました');
+    } finally {
+      setPlacesLoading(false);
+    }
+  };
+
   const handleOpenMap = async (genreName: string) => {
     try {
       await locationService.openMapSearch(genreName);
@@ -136,7 +176,19 @@ export default function GenreSearchScreen({ navigation }: Props) {
           onChangeText={handleSearch}
           autoCapitalize="none"
           autoCorrect={false}
+          returnKeyType="search"
+          onSubmitEditing={handleFreeTextSearch}
         />
+        {searchQuery.trim() !== '' && (
+          <TouchableOpacity
+            style={styles.freeTextSearchButton}
+            onPress={handleFreeTextSearch}
+          >
+            <Text style={styles.freeTextSearchButtonText}>
+              「{searchQuery.trim()}」で検索
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {displayGenres.length > 0 ? (
@@ -205,6 +257,24 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 16,
     color: '#333',
+  },
+  freeTextSearchButton: {
+    marginTop: 12,
+    backgroundColor: '#FF6B35',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  freeTextSearchButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
   listContent: {
     paddingHorizontal: 20,
