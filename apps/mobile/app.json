@@ -2,18 +2,41 @@
   "expo": {
     "name": "モグネイター",
     "slug": "mognator",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "primaryColor": "#FF6B35",
+    "description": "AIが最適な飲食店を提案。質問に答えるだけで、今の気分にぴったりな店舗が見つかります。",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mognator.mobile",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "近くの飲食店を検索するために位置情報を使用します。"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "package": "com.mognator.mobile",
+      "versionCode": 1,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION"
