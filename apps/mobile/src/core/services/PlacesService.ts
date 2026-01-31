@@ -83,6 +83,7 @@ class PlacesService {
         lat: latitude.toString(),
         lng: longitude.toString(),
         radius: radius.toString(),
+        restaurant: 'true', // 飲食店のみに絞る
       });
 
       // スコアリング設定をクエリパラメータに追加

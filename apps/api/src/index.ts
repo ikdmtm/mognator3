@@ -35,7 +35,7 @@ const GENRE_TO_PLACES_TYPE: Record<string, string[]> = {
   'kaisen_donburi': ['sushi_restaurant', 'japanese_restaurant'],
   
   // 焼肉・ステーキ
-  'yakiniku': ['korean_restaurant', 'japanese_restaurant'],
+  'yakiniku': ['korean_restaurant'],
   'steak': ['steak_house'],
   'yakitori': ['japanese_restaurant'],
   
@@ -517,27 +517,10 @@ export default {
         if (keyword && !genreId) {
           result = await searchText(env, keyword, lat, lng, radius, restaurantOnly);
         } else if (genreId) {
-          // ジャンルIDベース検索
-          // まずNearby Searchを試す
-          const placeTypes = GENRE_TO_PLACES_TYPE[genreId];
-          if (placeTypes && placeTypes.length > 0) {
-            result = await searchNearby(env, placeTypes, lat, lng, radius);
-          } else {
-            result = { places: [] };
-          }
-          
-          // 結果が少なければText Searchで補完
-          if (!result.places || result.places.length < 5) {
-            const genreKeyword = GENRE_TO_SEARCH_KEYWORD[genreId] || genreId;
-            const textResult = await searchText(env, genreKeyword, lat, lng, radius);
-            
-            if (textResult.places) {
-              // 重複を除いて結果をマージ
-              const existingIds = new Set(result.places?.map(p => p.id) || []);
-              const newPlaces = textResult.places.filter(p => !existingIds.has(p.id));
-              result.places = [...(result.places || []), ...newPlaces].slice(0, 10);
-            }
-          }
+          // ジャンルIDベース検索：日本語クエリで直接Text Searchを実行
+          const genreKeyword = GENRE_TO_SEARCH_KEYWORD[genreId] || genreId;
+          // ジャンル検索では常にrestaurantOnlyをtrueにして飲食店のみに絞る
+          result = await searchText(env, genreKeyword, lat, lng, radius, true);
         } else {
           // genreもkeywordもない場合（エラー処理済み）
           result = { places: [] };
