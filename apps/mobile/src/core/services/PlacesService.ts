@@ -38,6 +38,7 @@ export interface Place {
   reviews?: Review[];
   photoUrl?: string | null;
   photoUrls?: string[];
+  types?: string[];
 }
 
 export interface PlacesSearchResult {
@@ -119,7 +120,7 @@ class PlacesService {
   }
 
   /**
-   * フリーテキストで店舗を検索
+   * フリーテキストで店舗を検索（飲食店のみ）
    */
   async searchByKeyword(
     keyword: string,
@@ -134,6 +135,7 @@ class PlacesService {
         lat: latitude.toString(),
         lng: longitude.toString(),
         radius: radius.toString(),
+        restaurant: 'true', // 飲食店のみに絞る
       });
 
       // スコアリング設定をクエリパラメータに追加
@@ -163,7 +165,45 @@ class PlacesService {
       }
 
       const data = await response.json();
-      return { places: data.places || [] };
+      const places = data.places || [];
+      
+      // クライアント側でも飲食店かどうかをフィルタリング
+      const filteredPlaces = places.filter((place: any) => {
+        // types配列がない場合は通す（API側でフィルタ済みと判断）
+        if (!place.types) return true;
+        
+        // 飲食店関連のタイプ
+        const restaurantTypes = [
+          'restaurant', 'food', 'cafe', 'bar', 'meal_takeaway', 'meal_delivery',
+          'bakery', 'fast_food', 'japanese_restaurant', 'chinese_restaurant',
+          'italian_restaurant', 'french_restaurant', 'indian_restaurant',
+          'mexican_restaurant', 'thai_restaurant', 'korean_restaurant',
+          'vietnamese_restaurant', 'american_restaurant', 'spanish_restaurant',
+          'greek_restaurant', 'turkish_restaurant', 'brazilian_restaurant',
+          'seafood_restaurant', 'steak_house', 'sushi_restaurant',
+          'pizza_restaurant', 'hamburger_restaurant', 'sandwich_shop',
+          'ice_cream_shop', 'coffee_shop', 'tea_house', 'juice_bar',
+          'dessert_shop', 'ramen_restaurant', 'noodle_house',
+        ];
+        
+        // 除外すべきタイプ
+        const excludedTypes = [
+          'locality', 'political', 'country', 'administrative_area_level_1',
+          'administrative_area_level_2', 'administrative_area_level_3',
+          'geocode', 'sublocality', 'sublocality_level_1', 'neighborhood',
+          'route', 'street_address', 'premise', 'subpremise',
+        ];
+        
+        // 除外タイプが含まれている場合は除外
+        if (place.types.some((type: string) => excludedTypes.includes(type))) {
+          return false;
+        }
+        
+        // 飲食店タイプが含まれているか確認
+        return place.types.some((type: string) => restaurantTypes.includes(type));
+      });
+      
+      return { places: filteredPlaces };
     } catch (error) {
       console.error('Network error:', error);
       return { places: [], error: 'Network error' };

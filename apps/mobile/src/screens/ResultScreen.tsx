@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal, TextInput, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { inferenceEngine } from '../core/services/InferenceEngine';
-import { locationService } from '../core/services/LocationService';
+import { locationService, SearchLocation } from '../core/services/LocationService';
 import { storageService } from '../core/services/StorageService';
 import { placesService, Place } from '../core/services/PlacesService';
 import { GenreResult } from '../core/types/genre.types';
@@ -29,12 +29,73 @@ export default function ResultScreen({ navigation, route }: Props) {
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesError, setPlacesError] = useState<string | undefined>();
   const answers = route.params?.answers || [];
+  
+  // 場所選択機能
+  const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
+  const [addressInput, setAddressInput] = useState('');
+  const [addressLoading, setAddressLoading] = useState(false);
 
   useEffect(() => {
     // 推論エンジンからTop3を取得
     const top3 = inferenceEngine.getTop3();
     setResults(top3);
   }, []);
+
+  const handleUseCurrentLocation = async () => {
+    setAddressLoading(true);
+    try {
+      const location = await locationService.getCurrentSearchLocation();
+      if (location) {
+        setSearchLocation(location);
+        setLocationModalVisible(false);
+        setAddressInput('');
+      } else {
+        Alert.alert('エラー', '現在地を取得できませんでした');
+      }
+    } catch (error) {
+      Alert.alert('エラー', '現在地の取得に失敗しました');
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const handleSearchAddress = async () => {
+    if (!addressInput.trim()) {
+      Alert.alert('入力エラー', '住所または地名を入力してください');
+      return;
+    }
+
+    setAddressLoading(true);
+    try {
+      const location = await locationService.geocodeAddress(addressInput.trim());
+      if (location) {
+        setSearchLocation(location);
+        setLocationModalVisible(false);
+        setAddressInput('');
+      } else {
+        Alert.alert('検索失敗', '指定された場所が見つかりませんでした');
+      }
+    } catch (error) {
+      Alert.alert('エラー', '場所の検索に失敗しました');
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const getSearchCoords = async (): Promise<{ latitude: number; longitude: number } | null> => {
+    if (searchLocation) {
+      return { latitude: searchLocation.latitude, longitude: searchLocation.longitude };
+    }
+    
+    // デフォルトは現在地
+    const location = await locationService.getCurrentLocation();
+    if (location && location.coords) {
+      return { latitude: location.coords.latitude, longitude: location.coords.longitude };
+    }
+    
+    return null;
+  };
 
   const handleSearchPlaces = async (genreId: string, genreName: string) => {
     // 学習データを保存（このジャンルに興味がある）
@@ -54,16 +115,16 @@ export default function ResultScreen({ navigation, route }: Props) {
 
     // 位置情報とスコアリング設定を取得して店舗検索
     try {
-      const [location, scoringSettings] = await Promise.all([
-        locationService.getCurrentLocation(),
+      const [coords, scoringSettings] = await Promise.all([
+        getSearchCoords(),
         storageService.getScoringSettings(),
       ]);
       
-      if (location && location.coords) {
+      if (coords) {
         const result = await placesService.searchNearby(
           genreId,
-          location.coords.latitude,
-          location.coords.longitude,
+          coords.latitude,
+          coords.longitude,
           1500,
           scoringSettings
         );
@@ -117,6 +178,19 @@ export default function ResultScreen({ navigation, route }: Props) {
         <Text style={styles.subtitle}>今の気分に合いそうな食事です</Text>
       </View>
 
+      <View style={styles.locationContainer}>
+        <Text style={styles.locationLabel}>検索場所</Text>
+        <TouchableOpacity
+          style={styles.locationButton}
+          onPress={() => setLocationModalVisible(true)}
+        >
+          <Text style={styles.locationButtonText}>
+            {searchLocation ? searchLocation.name : '現在地周辺'}
+          </Text>
+          <Text style={styles.locationButtonIcon}>📍</Text>
+        </TouchableOpacity>
+      </View>
+
       {results.map((result, index) => (
         <View key={index} style={styles.resultCard}>
           <View style={styles.resultHeader}>
@@ -131,7 +205,9 @@ export default function ResultScreen({ navigation, route }: Props) {
             style={styles.mapButton}
             onPress={() => handleSearchPlaces(result.genre.id, result.genre.name)}
           >
-            <Text style={styles.mapButtonText}>近くで探す</Text>
+            <Text style={styles.mapButtonText}>
+              {searchLocation ? '指定した場所で探す' : '近くで探す'}
+            </Text>
           </TouchableOpacity>
         </View>
       ))}
@@ -143,10 +219,76 @@ export default function ResultScreen({ navigation, route }: Props) {
         <Text style={styles.homeButtonText}>ホームに戻る</Text>
       </TouchableOpacity>
 
+      {/* 場所選択モーダル */}
+      <Modal
+        visible={locationModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {
+          setLocationModalVisible(false);
+          setAddressInput('');
+        }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.locationModalContent}>
+              <TouchableWithoutFeedback>
+                <View pointerEvents="auto">
+                  <Text style={styles.locationModalTitle}>検索場所を選択</Text>
+
+                  <TouchableOpacity
+                    style={styles.locationOption}
+                    onPress={handleUseCurrentLocation}
+                    disabled={addressLoading}
+                  >
+                    <Text style={styles.locationOptionText}>📍 現在地周辺</Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.divider} />
+
+                  <Text style={styles.addressLabel}>または住所・地名を入力</Text>
+                  <TextInput
+                    style={styles.addressInput}
+                    placeholder="例: 東京駅、渋谷区神南1-1-1"
+                    value={addressInput}
+                    onChangeText={setAddressInput}
+                    editable={!addressLoading}
+                  />
+
+                  <TouchableOpacity
+                    style={[styles.addressSearchButton, addressLoading && styles.buttonDisabled]}
+                    onPress={handleSearchAddress}
+                    disabled={addressLoading}
+                  >
+                    {addressLoading ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.addressSearchButtonText}>この場所で検索</Text>
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setLocationModalVisible(false);
+                      setAddressInput('');
+                    }}
+                    disabled={addressLoading}
+                  >
+                    <Text style={styles.cancelButtonText}>キャンセル</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
       {/* 店舗リストモーダル */}
       <PlacesModal
         visible={modalVisible}
         genreName={selectedGenre?.name || ''}
+        locationName={searchLocation?.name || '現在地'}
         places={places}
         loading={placesLoading}
         error={placesError}
@@ -165,7 +307,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     paddingTop: 60,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   title: {
     fontSize: 28,
@@ -176,6 +318,34 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
+  },
+  locationContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  locationLabel: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 6,
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F0F8FF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#B0D4FF',
+  },
+  locationButtonText: {
+    fontSize: 15,
+    color: '#0066CC',
+    fontWeight: '500',
+  },
+  locationButtonIcon: {
+    fontSize: 18,
   },
   resultCard: {
     margin: 20,
@@ -240,5 +410,81 @@ const styles = StyleSheet.create({
   homeButtonText: {
     fontSize: 16,
     color: '#333',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  locationModalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    width: '85%',
+    maxWidth: 400,
+  },
+  locationModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  locationOption: {
+    backgroundColor: '#F0F8FF',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#B0D4FF',
+  },
+  locationOptionText: {
+    fontSize: 16,
+    color: '#0066CC',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 20,
+  },
+  addressLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+  },
+  addressInput: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 12,
+  },
+  addressSearchButton: {
+    backgroundColor: '#FF6B35',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  addressSearchButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  cancelButton: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 15,
+    color: '#666',
   },
 });

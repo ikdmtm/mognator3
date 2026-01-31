@@ -15,6 +15,7 @@ import PlaceDetailModal from './PlaceDetailModal';
 interface Props {
   visible: boolean;
   genreName: string;
+  locationName?: string; // 検索場所名（「現在地」or 住所）
   places: Place[];
   loading: boolean;
   error?: string;
@@ -25,6 +26,7 @@ interface Props {
 export default function PlacesModal({
   visible,
   genreName,
+  locationName,
   places,
   loading,
   error,
@@ -33,6 +35,14 @@ export default function PlacesModal({
 }: Props) {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
+
+  // サブタイトルを動的に生成
+  const getSubtitle = () => {
+    if (!locationName || locationName === '現在地') {
+      return '近くの店';
+    }
+    return `${locationName}周辺の店`;
+  };
 
   const handlePlacePress = (place: Place) => {
     setSelectedPlace(place);
@@ -136,7 +146,7 @@ export default function PlacesModal({
 
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>近くにお店が見つかりませんでした</Text>
+        <Text style={styles.emptyText}>お店が見つかりませんでした</Text>
         <TouchableOpacity
           style={styles.fallbackButton}
           onPress={() => onOpenMap(genreName)}
@@ -158,7 +168,7 @@ export default function PlacesModal({
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <Text style={styles.title}>{genreName}</Text>
-            <Text style={styles.subtitle}>近くのお店</Text>
+            <Text style={styles.subtitle}>{getSubtitle()}</Text>
           </View>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>✕</Text>

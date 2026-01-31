@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { storageService } from '../core/services/StorageService';
 import { ScoringSettings, DEFAULT_SCORING_SETTINGS } from '../core/types/scoring.types';
@@ -102,6 +102,15 @@ export default function SettingsScreen({ navigation }: Props) {
         },
       ]
     );
+  };
+
+  const handleOpenLink = async (url: string) => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('エラー', 'リンクを開けませんでした');
+    }
   };
 
   const priceLevelOptions = [
@@ -323,7 +332,20 @@ export default function SettingsScreen({ navigation }: Props) {
           <Text style={styles.sectionTitle}>アプリについて</Text>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>バージョン</Text>
-            <Text style={styles.infoValue}>0.1.0 (MVP)</Text>
+            <Text style={styles.infoValue}>1.0.0</Text>
+          </View>
+          <View style={styles.linksContainer}>
+            <TouchableOpacity 
+              onPress={() => handleOpenLink('https://ikdmtm.github.io/mognator-docs/privacy.html')}
+            >
+              <Text style={styles.linkText}>プライバシーポリシー</Text>
+            </TouchableOpacity>
+            <Text style={styles.linkSeparator}>・</Text>
+            <TouchableOpacity 
+              onPress={() => handleOpenLink('https://ikdmtm.github.io/mognator-docs/support.html')}
+            >
+              <Text style={styles.linkText}>サポート</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -503,5 +525,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontWeight: '600',
+  },
+  linksContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  linkText: {
+    fontSize: 12,
+    color: '#0066CC',
+    textDecorationLine: 'underline',
+  },
+  linkSeparator: {
+    fontSize: 12,
+    color: '#999',
+    marginHorizontal: 8,
   },
 });

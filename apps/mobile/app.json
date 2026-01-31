@@ -21,7 +21,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mognator.mobile",
+      "bundleIdentifier": "com.ikdmtm.mognator",
       "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "近くの飲食店を検索するために位置情報を使用します。"
@@ -42,6 +42,11 @@
         "ACCESS_FINE_LOCATION"
       ]
     },
-    "web": {}
+    "web": {},
+    "extra": {
+      "eas": {
+        "projectId": "4f1adb77-8a03-4c5a-a9e3-77a799398035"
+      }
+    }
   }
 }

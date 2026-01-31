@@ -1,6 +1,12 @@
 import * as Location from 'expo-location';
 import { Platform, Linking } from 'react-native';
 
+export interface SearchLocation {
+  latitude: number;
+  longitude: number;
+  name: string; // 「現在地」or 住所名
+}
+
 /**
  * 位置情報サービス
  */
@@ -32,6 +38,45 @@ export class LocationService {
       console.error('位置情報の取得に失敗しました:', error);
       return null;
     }
+  }
+
+  /**
+   * 住所や地名から緯度経度を取得
+   */
+  async geocodeAddress(address: string): Promise<SearchLocation | null> {
+    try {
+      const results = await Location.geocodeAsync(address);
+      
+      if (results.length === 0) {
+        return null;
+      }
+
+      const location = results[0];
+      return {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        name: address,
+      };
+    } catch (error) {
+      console.error('ジオコーディングに失敗しました:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 現在地から SearchLocation を作成
+   */
+  async getCurrentSearchLocation(): Promise<SearchLocation | null> {
+    const location = await this.getCurrentLocation();
+    if (!location) {
+      return null;
+    }
+
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      name: '現在地',
+    };
   }
 
   /**
