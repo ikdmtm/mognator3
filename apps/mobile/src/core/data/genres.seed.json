@@ -9,7 +9,7 @@
   { "id": "ramen_aburasoba", "name": "油そば", "enabled": true },
   { "id": "ramen_jiro", "name": "二郎系ラーメン", "enabled": true },
   { "id": "ramen_toripaitan", "name": "鶏白湯ラーメン", "enabled": true },
-  { "id": "tantanmen", "name": "担々麺", "enabled": true },
+  { "id": "ramen_tantanmen", "name": "担々麺", "enabled": true },
   
   { "id": "curry_spice", "name": "スパイスカレー", "enabled": true },
   { "id": "curry_katsu", "name": "カツカレー", "enabled": true },
@@ -19,7 +19,7 @@
   { "id": "curry_udon", "name": "カレーうどん", "enabled": true },
   
   { "id": "sushi", "name": "寿司", "enabled": true },
-  { "id": "donburi_kaisen", "name": "海鮮丼", "enabled": true },
+  { "id": "kaisen_donburi", "name": "海鮮丼", "enabled": true },
   
   { "id": "yakiniku", "name": "焼肉", "enabled": true },
   { "id": "steak", "name": "ステーキ", "enabled": true },
@@ -29,8 +29,8 @@
   { "id": "karaage", "name": "唐揚げ定食", "enabled": true },
   { "id": "tempura", "name": "天ぷら", "enabled": true },
   { "id": "kushikatsu", "name": "串カツ", "enabled": true },
-  { "id": "donburi_ten", "name": "天丼", "enabled": true },
-  { "id": "donburi_katsu", "name": "かつ丼", "enabled": true },
+  { "id": "ten_donburi", "name": "天丼", "enabled": true },
+  { "id": "katsu_donburi", "name": "かつ丼", "enabled": true },
   
   { "id": "gyoza", "name": "餃子", "enabled": true },
   { "id": "mapo_tofu", "name": "麻婆豆腐", "enabled": true },
@@ -41,10 +41,10 @@
   { "id": "pasta", "name": "パスタ", "enabled": true },
   { "id": "pizza", "name": "ピザ", "enabled": true },
   
-  { "id": "donburi_gyudon", "name": "牛丼", "enabled": true },
-  { "id": "donburi_butadon", "name": "豚丼", "enabled": true },
+  { "id": "gyudon", "name": "牛丼", "enabled": true },
+  { "id": "butadon", "name": "豚丼", "enabled": true },
   { "id": "oyakodon", "name": "親子丼", "enabled": true },
-  { "id": "donburi_una", "name": "うな重", "enabled": true },
+  { "id": "unadon", "name": "うな重", "enabled": true },
   
   { "id": "teishoku_fish", "name": "焼き魚定食", "enabled": true },
   { "id": "teishoku_shogayaki", "name": "生姜焼き定食", "enabled": true },
@@ -53,11 +53,11 @@
   
   { "id": "korean_yakiniku", "name": "韓国料理（サムギョプサル等）", "enabled": true },
   { "id": "korean_jjigae", "name": "韓国鍋（チゲ）", "enabled": true },
-  { "id": "bibimbap", "name": "ビビンバ", "enabled": true },
+  { "id": "korean_bibimbap", "name": "ビビンバ", "enabled": true },
   { "id": "korean_reimen", "name": "冷麺", "enabled": true },
   
-  { "id": "ethnic_thai", "name": "タイ料理", "enabled": true },
-  { "id": "ethnic_vietnam", "name": "ベトナム料理（フォー等）", "enabled": true },
+  { "id": "thai", "name": "タイ料理", "enabled": true },
+  { "id": "vietnam", "name": "ベトナム料理（フォー等）", "enabled": true },
   { "id": "ethnic_other", "name": "アジアン料理", "enabled": true },
   
   { "id": "udon", "name": "うどん", "enabled": true },

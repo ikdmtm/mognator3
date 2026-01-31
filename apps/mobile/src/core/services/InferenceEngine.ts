@@ -141,7 +141,7 @@ export class InferenceEngine {
       'ramen_aburasoba': { q_warm: 2, q_rich: 2, q_noodles: 2, q_garlic: 2, q_large: 1, q_japanese: 2, q_indulgent: 1, q_ramen_mood: 2 },
       'ramen_jiro': { q_warm: 2, q_soupy: 2, q_rich: 2, q_noodles: 2, q_pork: 2, q_veggie: 2, q_garlic: 2, q_large: 2, q_indulgent: 2, q_ramen_mood: 2 },
       'ramen_toripaitan': { q_warm: 2, q_soupy: 2, q_rich: 2, q_noodles: 2, q_chicken: 2, q_japanese: 2, q_ramen_mood: 2 },
-      'tantanmen': { q_warm: 2, q_soupy: 2, q_rich: 2, q_spicy: 2, q_very_spicy: 1, q_noodles: 2, q_meat: 1, q_garlic: 1, q_chinese: 2, q_ramen_mood: 2 },
+      'ramen_tantanmen': { q_warm: 2, q_soupy: 2, q_rich: 2, q_spicy: 2, q_very_spicy: 1, q_noodles: 2, q_meat: 1, q_garlic: 1, q_chinese: 2, q_ramen_mood: 2 },
 
       // カレー系（6種）
       'curry_spice': { q_warm: 2, q_rich: 1, q_spicy: 2, q_very_spicy: 1, q_rice: 2, q_veggie: 1, q_asian: 2, q_curry_mood: 2 },
@@ -153,7 +153,7 @@ export class InferenceEngine {
 
       // 寿司・海鮮系（2種）
       'sushi': { q_cold: 2, q_light: 2, q_rice: 1, q_fish: 2, q_raw_fish: 2, q_japanese: 2, q_indulgent: 1, q_sushi_mood: 2 },
-      'donburi_kaisen': { q_cold: 2, q_light: 2, q_rice: 2, q_fish: 2, q_raw_fish: 2, q_japanese: 2, q_quick: 1, q_sushi_mood: 2, q_donburi_mood: 2 },
+      'kaisen_donburi': { q_cold: 2, q_light: 2, q_rice: 2, q_fish: 2, q_raw_fish: 2, q_japanese: 2, q_quick: 1, q_sushi_mood: 2, q_donburi_mood: 2 },
 
       // 焼肉・ステーキ系（3種）
       'yakiniku': { q_warm: 2, q_rich: 1, q_grilled: 2, q_meat: 2, q_beef: 2, q_pork: 1, q_large: 2, q_share: 2, q_indulgent: 2, q_drink: 2, q_korean: 1, q_yakiniku_mood: 2 },
@@ -165,8 +165,8 @@ export class InferenceEngine {
       'karaage': { q_warm: 2, q_rich: 2, q_fried: 2, q_chicken: 2, q_garlic: 1, q_share: 1, q_japanese: 2, q_quick: 1, q_drink: 1 },
       'tempura': { q_warm: 2, q_fried: 2, q_light: 1, q_fish: 1, q_veggie: 1, q_japanese: 2, q_indulgent: 1 },
       'kushikatsu': { q_warm: 2, q_rich: 2, q_fried: 2, q_meat: 1, q_veggie: 1, q_share: 2, q_japanese: 2, q_drink: 2 },
-      'donburi_ten': { q_warm: 2, q_rich: 2, q_fried: 2, q_rice: 2, q_fish: 1, q_veggie: 1, q_japanese: 2, q_donburi_mood: 2 },
-      'donburi_katsu': { q_warm: 2, q_rich: 2, q_fried: 2, q_rice: 2, q_pork: 2, q_egg: 2, q_japanese: 2, q_donburi_mood: 2 },
+      'ten_donburi': { q_warm: 2, q_rich: 2, q_fried: 2, q_rice: 2, q_fish: 1, q_veggie: 1, q_japanese: 2, q_donburi_mood: 2 },
+      'katsu_donburi': { q_warm: 2, q_rich: 2, q_fried: 2, q_rice: 2, q_pork: 2, q_egg: 2, q_japanese: 2, q_donburi_mood: 2 },
 
       // 中華系（5種）
       'gyoza': { q_warm: 2, q_fried: 1, q_meat: 2, q_pork: 2, q_veggie: 1, q_garlic: 2, q_chinese: 2, q_share: 1, q_drink: 2 },
@@ -180,10 +180,10 @@ export class InferenceEngine {
       'pizza': { q_warm: 2, q_rich: 1, q_bread: 2, q_cheese: 2, q_share: 2, q_italian: 2, q_western: 2, q_indulgent: 1 },
 
       // 丼系（4種）
-      'donburi_gyudon': { q_warm: 2, q_rich: 1, q_rice: 2, q_beef: 2, q_japanese: 2, q_quick: 2, q_large: 1, q_donburi_mood: 2 },
-      'donburi_butadon': { q_warm: 2, q_rich: 1, q_rice: 2, q_pork: 2, q_japanese: 2, q_quick: 1, q_donburi_mood: 2 },
+      'gyudon': { q_warm: 2, q_rich: 1, q_rice: 2, q_beef: 2, q_japanese: 2, q_quick: 2, q_large: 1, q_donburi_mood: 2 },
+      'butadon': { q_warm: 2, q_rich: 1, q_rice: 2, q_pork: 2, q_japanese: 2, q_quick: 1, q_donburi_mood: 2 },
       'oyakodon': { q_warm: 2, q_rice: 2, q_chicken: 2, q_egg: 2, q_japanese: 2, q_quick: 2, q_donburi_mood: 2 },
-      'donburi_una': { q_warm: 2, q_rice: 2, q_fish: 2, q_japanese: 2, q_indulgent: 2, q_donburi_mood: 2 },
+      'unadon': { q_warm: 2, q_rice: 2, q_fish: 2, q_japanese: 2, q_indulgent: 2, q_donburi_mood: 2 },
 
       // 定食系（4種）
       'teishoku_fish': { q_warm: 2, q_light: 2, q_grilled: 2, q_fish: 2, q_japanese: 2, q_healthy: 2 },
@@ -194,12 +194,12 @@ export class InferenceEngine {
       // 韓国料理系（4種）
       'korean_yakiniku': { q_warm: 2, q_rich: 2, q_grilled: 2, q_pork: 2, q_garlic: 2, q_large: 2, q_share: 2, q_korean: 2, q_indulgent: 2, q_drink: 2, q_yakiniku_mood: 1 },
       'korean_jjigae': { q_warm: 2, q_soupy: 2, q_spicy: 2, q_pork: 1, q_veggie: 1, q_korean: 2, q_nabe_mood: 1 },
-      'bibimbap': { q_warm: 2, q_spicy: 1, q_rice: 2, q_beef: 1, q_veggie: 2, q_egg: 2, q_korean: 2, q_healthy: 1, q_donburi_mood: 1 },
+      'korean_bibimbap': { q_warm: 2, q_spicy: 1, q_rice: 2, q_beef: 1, q_veggie: 2, q_egg: 2, q_korean: 2, q_healthy: 1, q_donburi_mood: 1 },
       'korean_reimen': { q_cold: 2, q_soupy: 2, q_light: 2, q_spicy: 1, q_noodles: 2, q_korean: 2, q_healthy: 1 },
 
       // エスニック系（3種）
-      'ethnic_thai': { q_warm: 2, q_spicy: 2, q_very_spicy: 1, q_rice: 1, q_noodles: 1, q_fish: 1, q_veggie: 1, q_asian: 2 },
-      'ethnic_vietnam': { q_warm: 2, q_soupy: 2, q_light: 2, q_noodles: 2, q_beef: 1, q_veggie: 2, q_asian: 2, q_healthy: 2 },
+      'thai': { q_warm: 2, q_spicy: 2, q_very_spicy: 1, q_rice: 1, q_noodles: 1, q_fish: 1, q_veggie: 1, q_asian: 2 },
+      'vietnam': { q_warm: 2, q_soupy: 2, q_light: 2, q_noodles: 2, q_beef: 1, q_veggie: 2, q_asian: 2, q_healthy: 2 },
       'ethnic_other': { q_warm: 2, q_spicy: 1, q_rice: 1, q_asian: 2 },
 
       // その他（7種）

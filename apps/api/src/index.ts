@@ -71,6 +71,7 @@ const GENRE_TO_PLACES_TYPE: Record<string, string[]> = {
   'teishoku_hamburg': ['japanese_restaurant'],
   
   // 韓国料理
+  'korean_yakiniku': ['korean_restaurant'],
   'korean_jjigae': ['korean_restaurant'],
   'korean_bibimbap': ['korean_restaurant'],
   'korean_reimen': ['korean_restaurant'],
@@ -135,6 +136,7 @@ const GENRE_TO_SEARCH_KEYWORD: Record<string, string> = {
   'teishoku_shogayaki': '生姜焼き定食',
   'teishoku_sashimi': '刺身定食',
   'teishoku_hamburg': 'ハンバーグ',
+  'korean_yakiniku': '韓国焼肉 サムギョプサル',
   'korean_jjigae': 'チゲ 韓国料理',
   'korean_bibimbap': 'ビビンバ',
   'korean_reimen': '冷麺',
