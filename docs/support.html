@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サポート - Mognator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B6B 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B6B 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .language-toggle button {
+            padding: 10px 24px;
+            margin: 0 5px;
+            border: 2px solid #FF8C42;
+            background: white;
+            color: #FF8C42;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .language-toggle button:hover {
+            background: #FF8C42;
+            color: white;
+        }
+
+        .language-toggle button.active {
+            background: #FF8C42;
+            color: white;
+        }
+
+        .lang-section {
+            display: none;
+        }
+
+        .lang-section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #FF8C42;
+            font-size: 1.8em;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF8C42;
+        }
+
+        h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin: 25px 0 12px;
+        }
+
+        h4 {
+            color: #FF8C42;
+            font-size: 1.1em;
+            margin: 20px 0 10px;
+        }
+
+        p, li {
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        ol, ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        a {
+            color: #FF8C42;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #FF6B6B;
+            text-decoration: underline;
+        }
+
+        .faq-item {
+            background: #f8f9fa;
+            border-left: 4px solid #FF8C42;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item h4 {
+            margin-top: 0;
+            color: #FF8C42;
+        }
+
+        .contact-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0e0 100%);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .contact-box p {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+
+        .contact-box a {
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍜 Mognator</h1>
+            <p>サポート / Support</p>
+        </div>
+
+        <div class="content">
+            <div class="language-toggle">
+                <button onclick="switchLanguage('ja')" id="btn-ja" class="active">日本語</button>
+                <button onclick="switchLanguage('en')" id="btn-en">English</button>
+            </div>
+
+            <!-- 日本語版 -->
+            <div id="lang-ja" class="lang-section active">
+                <h2>モグネイター（Mognator）サポートページ</h2>
+
+                <h3>よくある質問（FAQ）</h3>
+
+                <div class="faq-item">
+                    <h4>Q1: モグネイターとは何ですか？</h4>
+                    <p><strong>A:</strong> モグネイターは、AIによる質問ベースの推薦アルゴリズムを使用して、あなたの今の気分に最適な飲食店を提案するアプリです。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q2: 位置情報はなぜ必要ですか？</h4>
+                    <p><strong>A:</strong> 近くの飲食店を検索し、実際に行ける範囲内の店舗を提案するために位置情報が必要です。位置情報はサーバーに保存されず、検索のためにのみ一時的に使用されます。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q3: データはどこに保存されますか？</h4>
+                    <p><strong>A:</strong> すべての学習データ（質問への回答履歴など）はデバイス内にローカル保存されます。外部サーバーには送信されません。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q4: 学習データを削除できますか？</h4>
+                    <p><strong>A:</strong> はい。アプリの「設定」→「学習データをリセット」からいつでもデータを削除できます。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q5: 店舗情報はどこから取得していますか？</h4>
+                    <p><strong>A:</strong> Google Places API (New) を使用して、最新の店舗情報を取得しています。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q6: スコアリング設定とは何ですか？</h4>
+                    <p><strong>A:</strong> 店舗の並び順をカスタマイズできる機能です。「評価」「レビュー数」「営業中」「距離」「価格帯」の重みを調整して、あなたの優先順位に合わせた検索ができます。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q7: オフラインでも使えますか？</h4>
+                    <p><strong>A:</strong> いいえ。店舗情報の検索にはインターネット接続が必要です。</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q8: 料金はかかりますか？</h4>
+                    <p><strong>A:</strong> 現在、モグネイターは完全無料でご利用いただけます。</p>
+                </div>
+
+                <h3>トラブルシューティング</h3>
+
+                <h4>店舗が表示されない</h4>
+                <ol>
+                    <li>位置情報の許可を確認してください（設定→プライバシー→位置情報サービス）</li>
+                    <li>インターネット接続を確認してください</li>
+                    <li>アプリを再起動してみてください</li>
+                </ol>
+
+                <h4>アプリが起動しない</h4>
+                <ol>
+                    <li>デバイスを再起動してください</li>
+                    <li>アプリを最新バージョンにアップデートしてください</li>
+                    <li>それでも解決しない場合は、サポートまでご連絡ください</li>
+                </ol>
+
+                <h3>機能について</h3>
+
+                <h4>質問に答えて探す</h4>
+                <div class="steps">
+                    <ol>
+                        <li>ホーム画面で「質問に答えて探す」をタップ</li>
+                        <li>表示される質問に答えていく</li>
+                        <li>AIが最適なジャンルを提案</li>
+                        <li>店舗リストから好みの店を選ぶ</li>
+                    </ol>
+                </div>
+
+                <h4>ジャンルから探す</h4>
+                <div class="steps">
+                    <ol>
+                        <li>ホーム画面で「ジャンルから探す」をタップ</li>
+                        <li>57種類のジャンルから選択、または検索バーで自由に入力</li>
+                        <li>独自のスコアリングアルゴリズムで最適な店舗を表示</li>
+                    </ol>
+                </div>
+
+                <h4>スコアリング設定</h4>
+                <div class="steps">
+                    <ol>
+                        <li>ホーム画面で「設定」をタップ</li>
+                        <li>「スコアリング設定」セクションを開く</li>
+                        <li>各要素（評価、レビュー数、営業中、距離、価格帯）の重みを調整</li>
+                        <li>好みの価格帯を選択</li>
+                    </ol>
+                </div>
+
+                <h3>お問い合わせ</h3>
+                <div class="contact-box">
+                    <p>アプリに関するご質問、不具合の報告、機能のリクエストなどがございましたら、以下までご連絡ください：</p>
+                    <p><strong>メール:</strong> <a href="mailto:support@mognator.example.com">support@mognator.example.com</a></p>
+                    <p><strong>対応時間:</strong> 平日 10:00-18:00 (JST)</p>
+                    <p><strong>返信:</strong> 通常2営業日以内にご返信いたします</p>
+                </div>
+
+                <h3>フィードバック</h3>
+                <p>モグネイターをより良いアプリにするため、皆様のフィードバックをお待ちしております。App Storeのレビューまたは上記のメールアドレスまでご意見をお寄せください。</p>
+            </div>
+
+            <!-- English Version -->
+            <div id="lang-en" class="lang-section">
+                <h2>Mognator Support Page</h2>
+
+                <h3>FAQ</h3>
+
+                <div class="faq-item">
+                    <h4>Q1: What is Mognator?</h4>
+                    <p><strong>A:</strong> Mognator is an app that suggests optimal restaurants based on your current mood using an AI-powered question-based recommendation algorithm.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q2: Why is location access required?</h4>
+                    <p><strong>A:</strong> Location is needed to search for nearby restaurants and suggest venues within your reach. Location data is not stored on servers and is only used temporarily for searches.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q3: Where is my data stored?</h4>
+                    <p><strong>A:</strong> All learning data (question answer history, etc.) is stored locally on your device. It is not transmitted to external servers.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q4: Can I delete my learning data?</h4>
+                    <p><strong>A:</strong> Yes. Go to Settings → "Reset Learning Data" to delete your data anytime.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q5: Where does restaurant information come from?</h4>
+                    <p><strong>A:</strong> We use Google Places API (New) to retrieve the latest restaurant information.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q6: What are scoring settings?</h4>
+                    <p><strong>A:</strong> A feature to customize how restaurants are ranked. Adjust weights for "rating", "review count", "open now", "distance", and "price level" to match your priorities.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q7: Does it work offline?</h4>
+                    <p><strong>A:</strong> No. Internet connection is required for restaurant searches.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Q8: Is there a fee?</h4>
+                    <p><strong>A:</strong> Mognator is currently completely free to use.</p>
+                </div>
+
+                <h3>Troubleshooting</h3>
+
+                <h4>No restaurants displayed</h4>
+                <ol>
+                    <li>Check location permissions (Settings → Privacy → Location Services)</li>
+                    <li>Verify internet connection</li>
+                    <li>Try restarting the app</li>
+                </ol>
+
+                <h4>App won't start</h4>
+                <ol>
+                    <li>Restart your device</li>
+                    <li>Update the app to the latest version</li>
+                    <li>If problem persists, contact support</li>
+                </ol>
+
+                <h3>Contact</h3>
+                <div class="contact-box">
+                    <p>For questions, bug reports, or feature requests:</p>
+                    <p><strong>Email:</strong> <a href="mailto:support@mognator.example.com">support@mognator.example.com</a></p>
+                    <p><strong>Hours:</strong> Weekdays 10:00-18:00 (JST)</p>
+                    <p><strong>Response:</strong> Usually within 2 business days</p>
+                </div>
+
+                <h3>Feedback</h3>
+                <p>We welcome your feedback to improve Mognator. Please leave a review on the App Store or email us at the address above.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Mognator. All rights reserved. | <a href="privacy.html">Privacy Policy</a></p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Hide all sections
+            document.querySelectorAll('.lang-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.language-toggle button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section and activate button
+            document.getElementById('lang-' + lang).classList.add('active');
+            document.getElementById('btn-' + lang).classList.add('active');
+        }
+    </script>
+</body>
+</html>

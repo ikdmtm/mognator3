@@ -179,6 +179,7 @@ interface PlacesTextSearchRequest {
     };
   };
   languageCode: string;
+  includedType?: string;
 }
 
 interface Review {
@@ -280,12 +281,19 @@ async function searchText(
   query: string,
   lat: number,
   lng: number,
-  radius: number = 1500
+  radius: number = 1500,
+  restaurantOnly: boolean = false
 ): Promise<PlacesResponse> {
   const url = 'https://places.googleapis.com/v1/places:searchText';
   
+  // 飲食店のみに絞る場合、クエリに「レストラン」を追加
+  let searchQuery = query;
+  if (restaurantOnly) {
+    searchQuery = `${query} レストラン 飲食店`;
+  }
+  
   const body: PlacesTextSearchRequest = {
-    textQuery: query,
+    textQuery: searchQuery,
     maxResultCount: 10,
     locationBias: {
       circle: {
@@ -295,6 +303,11 @@ async function searchText(
     },
     languageCode: 'ja',
   };
+  
+  // 飲食店のみに絞る場合
+  if (restaurantOnly) {
+    body.includedType = 'restaurant';
+  }
   
   // 詳細情報を含むフィールドマスク
   const fieldMask = [
@@ -474,6 +487,7 @@ export default {
       try {
         const genreId = url.searchParams.get('genre');
         const keyword = url.searchParams.get('keyword'); // フリーテキスト検索用
+        const restaurantOnly = url.searchParams.get('restaurant') === 'true'; // 飲食店のみに絞る
         const lat = parseFloat(url.searchParams.get('lat') || '');
         const lng = parseFloat(url.searchParams.get('lng') || '');
         const radius = parseInt(url.searchParams.get('radius') || '1500');
@@ -499,7 +513,7 @@ export default {
         
         // フリーテキスト検索の場合
         if (keyword && !genreId) {
-          result = await searchText(env, keyword, lat, lng, radius);
+          result = await searchText(env, keyword, lat, lng, radius, restaurantOnly);
         } else if (genreId) {
           // ジャンルIDベース検索
           // まずNearby Searchを試す

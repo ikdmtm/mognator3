@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プライバシーポリシー - Mognator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B6B 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B6B 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .language-toggle button {
+            padding: 10px 24px;
+            margin: 0 5px;
+            border: 2px solid #FF8C42;
+            background: white;
+            color: #FF8C42;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .language-toggle button:hover {
+            background: #FF8C42;
+            color: white;
+        }
+
+        .language-toggle button.active {
+            background: #FF8C42;
+            color: white;
+        }
+
+        .lang-section {
+            display: none;
+        }
+
+        .lang-section.active {
+            display: block;
+        }
+
+        h2 {
+            color: #FF8C42;
+            font-size: 1.8em;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #FF8C42;
+        }
+
+        h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin: 25px 0 12px;
+        }
+
+        h4 {
+            color: #555;
+            font-size: 1.1em;
+            margin: 20px 0 10px;
+        }
+
+        p, li {
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        a {
+            color: #FF8C42;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #FF6B6B;
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: #fff3e0;
+            border-left: 4px solid #FF8C42;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍜 Mognator</h1>
+            <p>プライバシーポリシー / Privacy Policy</p>
+            <p style="margin-top: 10px;">最終更新日: 2026年1月30日 / Last Updated: January 30, 2026</p>
+        </div>
+
+        <div class="content">
+            <div class="language-toggle">
+                <button onclick="switchLanguage('ja')" id="btn-ja" class="active">日本語</button>
+                <button onclick="switchLanguage('en')" id="btn-en">English</button>
+            </div>
+
+            <!-- 日本語版 -->
+            <div id="lang-ja" class="lang-section active">
+                <h2>モグネイター（Mognator）プライバシーポリシー</h2>
+
+                <h3>1. 収集する情報</h3>
+                <p>モグネイターは、サービス提供のために以下の情報を収集します：</p>
+
+                <h4>1.1 位置情報</h4>
+                <ul>
+                    <li><strong>目的</strong>: 近くの飲食店を検索し、最適な店舗を提案するため</li>
+                    <li><strong>収集方法</strong>: アプリ使用時に、ユーザーの同意を得てデバイスの位置情報を取得</li>
+                    <li><strong>保存</strong>: 位置情報は一時的に使用されるのみで、サーバーに保存されません</li>
+                </ul>
+
+                <h4>1.2 使用データ</h4>
+                <ul>
+                    <li><strong>目的</strong>: アプリの機能改善とパーソナライズされた推薦を提供するため</li>
+                    <li><strong>内容</strong>:
+                        <ul>
+                            <li>質問への回答履歴</li>
+                            <li>選択したジャンルと店舗</li>
+                            <li>アプリの使用パターン</li>
+                        </ul>
+                    </li>
+                    <li><strong>保存</strong>: すべてのデータはデバイス内にローカル保存され、外部には送信されません</li>
+                </ul>
+
+                <h3>2. 情報の使用目的</h3>
+                <p>収集した情報は以下の目的でのみ使用されます：</p>
+                <ul>
+                    <li>近くの飲食店を検索し、表示する</li>
+                    <li>ユーザーの好みに基づいて店舗を推薦する</li>
+                    <li>アプリの機能を改善する</li>
+                    <li>ユーザーエクスペリエンスを向上させる</li>
+                </ul>
+
+                <h3>3. 情報の共有</h3>
+                <p>モグネイターは、以下の場合を除き、ユーザーの個人情報を第三者と共有しません：</p>
+                <ul>
+                    <li><strong>Google Places API</strong>: 店舗情報の取得のため、位置情報をGoogle Places APIに送信します</li>
+                    <li><strong>法的要請</strong>: 法律で義務付けられている場合</li>
+                </ul>
+
+                <h3>4. データの保存とセキュリティ</h3>
+                <ul>
+                    <li><strong>ローカルストレージ</strong>: 使用データ（質問への回答、学習履歴）はすべてデバイス内に暗号化されて保存されます</li>
+                    <li><strong>サーバー保存なし</strong>: 個人を特定できる情報はサーバーに保存されません</li>
+                    <li><strong>削除</strong>: 設定画面から「学習データをリセット」でいつでもデータを削除できます</li>
+                </ul>
+
+                <h3>5. 第三者サービス</h3>
+                <p>モグネイターは以下の第三者サービスを使用しています：</p>
+
+                <h4>5.1 Google Places API</h4>
+                <ul>
+                    <li><strong>目的</strong>: 店舗情報の取得</li>
+                    <li><strong>送信データ</strong>: 位置情報、検索キーワード</li>
+                    <li><strong>プライバシーポリシー</strong>: <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a></li>
+                </ul>
+
+                <h3>6. 子供のプライバシー</h3>
+                <p>モグネイターは13歳未満の子供を対象としていません。13歳未満のユーザーから意図的に個人情報を収集することはありません。</p>
+
+                <h3>7. データの権利</h3>
+                <p>ユーザーには以下の権利があります：</p>
+                <ul>
+                    <li><strong>アクセス権</strong>: 保存されているデータを確認する権利</li>
+                    <li><strong>削除権</strong>: 設定画面からデータを削除する権利</li>
+                    <li><strong>異議申し立て権</strong>: データの使用に異議を申し立てる権利</li>
+                </ul>
+
+                <h3>8. プライバシーポリシーの変更</h3>
+                <p>本プライバシーポリシーは、法律やサービスの変更に応じて更新される場合があります。重要な変更がある場合は、アプリ内で通知します。</p>
+
+                <h3>9. お問い合わせ</h3>
+                <div class="info-box">
+                    <p><strong>メール</strong>: <a href="mailto:privacy@mognator.example.com">privacy@mognator.example.com</a></p>
+                    <p><strong>サポートページ</strong>: <a href="support.html">サポートページへ</a></p>
+                </div>
+            </div>
+
+            <!-- English Version -->
+            <div id="lang-en" class="lang-section">
+                <h2>Mognator Privacy Policy</h2>
+
+                <h3>1. Information We Collect</h3>
+
+                <h4>1.1 Location Information</h4>
+                <ul>
+                    <li><strong>Purpose</strong>: To search for nearby restaurants and suggest optimal venues</li>
+                    <li><strong>Collection</strong>: Device location with user consent during app use</li>
+                    <li><strong>Storage</strong>: Location data is used temporarily and not stored on servers</li>
+                </ul>
+
+                <h4>1.2 Usage Data</h4>
+                <ul>
+                    <li><strong>Purpose</strong>: To improve app functionality and provide personalized recommendations</li>
+                    <li><strong>Content</strong>:
+                        <ul>
+                            <li>Question answer history</li>
+                            <li>Selected genres and restaurants</li>
+                            <li>App usage patterns</li>
+                        </ul>
+                    </li>
+                    <li><strong>Storage</strong>: All data is stored locally on device and not transmitted externally</li>
+                </ul>
+
+                <h3>2. Use of Information</h3>
+                <p>Collected information is used only for:</p>
+                <ul>
+                    <li>Searching and displaying nearby restaurants</li>
+                    <li>Recommending restaurants based on user preferences</li>
+                    <li>Improving app features</li>
+                    <li>Enhancing user experience</li>
+                </ul>
+
+                <h3>3. Information Sharing</h3>
+                <p>Mognator does not share user information with third parties except:</p>
+                <ul>
+                    <li><strong>Google Places API</strong>: Location data is sent to Google Places API for restaurant information</li>
+                    <li><strong>Legal Requirements</strong>: When required by law</li>
+                </ul>
+
+                <h3>4. Data Storage and Security</h3>
+                <ul>
+                    <li><strong>Local Storage</strong>: Usage data is encrypted and stored on device</li>
+                    <li><strong>No Server Storage</strong>: No personally identifiable information is stored on servers</li>
+                    <li><strong>Deletion</strong>: Users can delete data anytime from settings</li>
+                </ul>
+
+                <h3>5. Third-Party Services</h3>
+
+                <h4>5.1 Google Places API</h4>
+                <ul>
+                    <li><strong>Purpose</strong>: Restaurant information retrieval</li>
+                    <li><strong>Data Sent</strong>: Location, search keywords</li>
+                    <li><strong>Privacy Policy</strong>: <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a></li>
+                </ul>
+
+                <h3>6. Children's Privacy</h3>
+                <p>Mognator is not intended for children under 13. We do not knowingly collect information from children under 13.</p>
+
+                <h3>7. Your Rights</h3>
+                <p>Users have the right to:</p>
+                <ul>
+                    <li>Access stored data</li>
+                    <li>Delete data from settings</li>
+                    <li>Object to data usage</li>
+                </ul>
+
+                <h3>8. Changes to Privacy Policy</h3>
+                <p>This policy may be updated to reflect legal or service changes. Significant changes will be notified in-app.</p>
+
+                <h3>9. Contact Us</h3>
+                <div class="info-box">
+                    <p><strong>Email</strong>: <a href="mailto:privacy@mognator.example.com">privacy@mognator.example.com</a></p>
+                    <p><strong>Support</strong>: <a href="support.html">Support Page</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Mognator. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Hide all sections
+            document.querySelectorAll('.lang-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.language-toggle button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section and activate button
+            document.getElementById('lang-' + lang).classList.add('active');
+            document.getElementById('btn-' + lang).classList.add('active');
+        }
+    </script>
+</body>
+</html>
