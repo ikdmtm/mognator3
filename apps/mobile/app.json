@@ -20,7 +20,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.ikdmtm.mognator",
       "buildNumber": "1",
       "infoPlist": {
@@ -47,6 +47,9 @@
       "eas": {
         "projectId": "4f1adb77-8a03-4c5a-a9e3-77a799398035"
       }
-    }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
   }
 }

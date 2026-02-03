@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 
+import { I18nProvider } from './src/core/i18n';
 import HomeScreen from './src/screens/HomeScreen';
 import QuestionScreen from './src/screens/QuestionScreen';
 import ResultScreen from './src/screens/ResultScreen';
@@ -21,7 +22,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <I18nProvider>
+      <NavigationContainer>
       <StatusBar style="auto" />
       <Stack.Navigator
         initialRouteName="Home"
@@ -37,5 +39,6 @@ export default function App() {
         <Stack.Screen name="GenreSearch" component={GenreSearchScreen} />
       </Stack.Navigator>
     </NavigationContainer>
+    </I18nProvider>
   );
 }

@@ -13,6 +13,7 @@ import {
   FlatList,
 } from 'react-native';
 import { Place, Review } from '../core/services/PlacesService';
+import { useI18n } from '../core/i18n';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PHOTO_HEIGHT = SCREEN_WIDTH * 0.6;
@@ -24,8 +25,9 @@ interface Props {
 }
 
 export default function PlaceDetailModal({ visible, place, onClose }: Props) {
+  const { t } = useI18n();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  
+
   if (!place) return null;
 
   const photos = place.photoUrls && place.photoUrls.length > 0 
@@ -39,7 +41,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
       try {
         await Linking.openURL(place.googleMapsUri);
       } catch {
-        Alert.alert('エラー', 'マップを開けませんでした');
+        Alert.alert(t('error.generic'), t('placeDetail.errorMap'));
       }
     }
   };
@@ -50,7 +52,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
       try {
         await Linking.openURL(phoneUrl);
       } catch {
-        Alert.alert('エラー', '電話をかけられませんでした');
+        Alert.alert(t('error.generic'), t('placeDetail.errorPhone'));
       }
     }
   };
@@ -60,7 +62,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
       try {
         await Linking.openURL(place.websiteUri);
       } catch {
-        Alert.alert('エラー', 'ウェブサイトを開けませんでした');
+        Alert.alert(t('error.generic'), t('placeDetail.errorWebsite'));
       }
     }
   };
@@ -68,11 +70,11 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
   const renderPriceLevel = (priceLevel?: string) => {
     if (!priceLevel) return null;
     const levels: Record<string, { text: string; color: string }> = {
-      PRICE_LEVEL_FREE: { text: '無料', color: '#34C759' },
-      PRICE_LEVEL_INEXPENSIVE: { text: '¥ リーズナブル', color: '#34C759' },
-      PRICE_LEVEL_MODERATE: { text: '¥¥ 普通', color: '#FFB800' },
-      PRICE_LEVEL_EXPENSIVE: { text: '¥¥¥ やや高め', color: '#FF9500' },
-      PRICE_LEVEL_VERY_EXPENSIVE: { text: '¥¥¥¥ 高級', color: '#FF3B30' },
+      PRICE_LEVEL_FREE: { text: t('placeDetail.priceFree'), color: '#34C759' },
+      PRICE_LEVEL_INEXPENSIVE: { text: t('placeDetail.priceInexpensive'), color: '#34C759' },
+      PRICE_LEVEL_MODERATE: { text: t('placeDetail.priceModerate'), color: '#FFB800' },
+      PRICE_LEVEL_EXPENSIVE: { text: t('placeDetail.priceExpensive'), color: '#FF9500' },
+      PRICE_LEVEL_VERY_EXPENSIVE: { text: t('placeDetail.priceVeryExpensive'), color: '#FF3B30' },
     };
     return levels[priceLevel] || null;
   };
@@ -110,7 +112,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
         {/* ヘッダー */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={onClose}>
-            <Text style={styles.backButtonText}>← 戻る</Text>
+            <Text style={styles.backButtonText}>{t('placeDetail.back')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -146,7 +148,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
             </View>
           ) : (
             <View style={[styles.heroImage, styles.noImage]}>
-              <Text style={styles.noImageText}>写真なし</Text>
+              <Text style={styles.noImageText}>{t('placeDetail.noPhoto')}</Text>
             </View>
           )}
 
@@ -166,7 +168,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
                   <Text style={styles.ratingNumber}>{place.rating.toFixed(1)}</Text>
                   {place.userRatingCount && (
                     <Text style={styles.reviewCount}>
-                      ({place.userRatingCount.toLocaleString()}件のレビュー)
+                      ({place.userRatingCount.toLocaleString()} {t('placeDetail.reviews')})
                     </Text>
                   )}
                 </View>
@@ -196,7 +198,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
                       },
                     ]}
                   >
-                    {place.currentOpeningHours.openNow ? '営業中' : '営業時間外'}
+                    {place.currentOpeningHours.openNow ? t('places.openNow') : t('places.closed')}
                   </Text>
                 </View>
               )}
@@ -216,13 +218,13 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
                 {place.internationalPhoneNumber && (
                   <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
                     <Text style={styles.actionButtonIcon}>📞</Text>
-                    <Text style={styles.actionButtonText}>電話</Text>
+                    <Text style={styles.actionButtonText}>{t('placeDetail.phoneAction')}</Text>
                   </TouchableOpacity>
                 )}
                 {place.websiteUri && (
                   <TouchableOpacity style={styles.actionButton} onPress={handleOpenWebsite}>
                     <Text style={styles.actionButtonIcon}>🌐</Text>
-                    <Text style={styles.actionButtonText}>ウェブサイト</Text>
+                    <Text style={styles.actionButtonText}>{t('placeDetail.website')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -231,15 +233,14 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
             {/* 住所 */}
             {place.formattedAddress && (
               <View style={styles.detailSection}>
-                <Text style={styles.sectionLabel}>住所</Text>
+                <Text style={styles.sectionLabel}>{t('placeDetail.address')}</Text>
                 <Text style={styles.detailText}>{place.formattedAddress}</Text>
               </View>
             )}
 
-            {/* 営業時間 */}
             {place.regularOpeningHours?.weekdayDescriptions && place.regularOpeningHours.weekdayDescriptions.length > 0 && (
               <View style={styles.detailSection}>
-                <Text style={styles.sectionLabel}>営業時間</Text>
+                <Text style={styles.sectionLabel}>{t('placeDetail.hours')}</Text>
                 {place.regularOpeningHours.weekdayDescriptions.map((desc, idx) => (
                   <Text key={idx} style={styles.hoursText}>{desc}</Text>
                 ))}
@@ -249,7 +250,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
             {/* 電話番号 */}
             {place.internationalPhoneNumber && (
               <View style={styles.detailSection}>
-                <Text style={styles.sectionLabel}>電話番号</Text>
+                <Text style={styles.sectionLabel}>{t('placeDetail.phone')}</Text>
                 <TouchableOpacity onPress={handleCall}>
                   <Text style={[styles.detailText, styles.linkText]}>
                     {place.internationalPhoneNumber}
@@ -261,7 +262,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
             {/* レビュー */}
             {place.reviews && place.reviews.length > 0 && (
               <View style={styles.reviewsSection}>
-                <Text style={styles.sectionLabel}>おすすめレビュー</Text>
+                <Text style={styles.sectionLabel}>{t('placeDetail.recommendedReviews')}</Text>
                 {place.reviews.slice(0, 5).map((review, idx) => renderReview(review, idx))}
               </View>
             )}
@@ -271,7 +272,7 @@ export default function PlaceDetailModal({ visible, place, onClose }: Props) {
         {/* マップボタン */}
         <View style={styles.footer}>
           <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
-            <Text style={styles.mapButtonText}>マップで見る</Text>
+            <Text style={styles.mapButtonText}>{t('placeDetail.viewOnMap')}</Text>
           </TouchableOpacity>
         </View>
       </View>

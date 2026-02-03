@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useI18n } from '../core/i18n';
 
 type RootStackParamList = {
   Home: undefined;
@@ -15,35 +16,31 @@ type Props = {
 };
 
 export default function HomeScreen({ navigation }: Props) {
+  const { t } = useI18n();
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>モグネイター</Text>
-        <Text style={styles.subtitle}>
-          今の気分にあった食事を見つけましょう
-        </Text>
+        <Text style={styles.title}>{t('home.title')}</Text>
+        <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate('Question')}
           >
-            <Text style={styles.buttonText}>質問に答えて探す</Text>
-            <Text style={styles.buttonSubtext}>何を食べたいか迷っている方へ</Text>
+            <Text style={styles.buttonText}>{t('home.answerQuestions')}</Text>
+            <Text style={styles.buttonSubtext}>{t('home.answerQuestionsSub')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() => navigation.navigate('GenreSearch')}
           >
-            <Text style={styles.secondaryButtonText}>ジャンルから探す</Text>
-            <Text style={styles.secondaryButtonSubtext}>食べたいものが決まっている方へ</Text>
+            <Text style={styles.secondaryButtonText}>{t('home.searchByGenre')}</Text>
+            <Text style={styles.secondaryButtonSubtext}>{t('home.searchByGenreSub')}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.algorithmNote}>
-            ※ 独自のスコアリングアルゴリズムで{'\n'}
-            あなたに最適な店舗をおすすめします
-          </Text>
+          <Text style={styles.algorithmNote}>{t('home.algorithmNote')}</Text>
         </View>
       </View>
 
@@ -51,7 +48,7 @@ export default function HomeScreen({ navigation }: Props) {
         style={styles.settingsButton}
         onPress={() => navigation.navigate('Settings')}
       >
-        <Text style={styles.settingsButtonText}>設定</Text>
+        <Text style={styles.settingsButtonText}>{t('home.settings')}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -15,6 +15,7 @@ import {
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Genre } from '../core/types/genre.types';
 import genresData from '../core/data/genres.seed.json';
+import { useI18n } from '../core/i18n';
 import { placesService, Place } from '../core/services/PlacesService';
 import { locationService, SearchLocation } from '../core/services/LocationService';
 import { storageService } from '../core/services/StorageService';
@@ -47,17 +48,24 @@ export default function GenreSearchScreen({ navigation }: Props) {
   const [addressInput, setAddressInput] = useState('');
   const [addressLoading, setAddressLoading] = useState(false);
 
+  const { t, locale } = useI18n();
   const genres: Genre[] = genresData as Genre[];
   const enabledGenres = genres.filter(g => g.enabled);
+  const getGenreName = (g: Genre) => (locale === 'en' && (g as Genre & { nameEn?: string }).nameEn)
+    ? (g as Genre & { nameEn?: string }).nameEn!
+    : g.name;
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
       setFilteredGenres([]);
     } else {
-      const filtered = enabledGenres.filter(genre =>
-        genre.name.toLowerCase().includes(query.toLowerCase())
-      );
+      const q = query.toLowerCase();
+      const filtered = enabledGenres.filter(genre => {
+        const name = genre.name.toLowerCase();
+        const nameEn = (genre as Genre & { nameEn?: string }).nameEn?.toLowerCase();
+        return name.includes(q) || (nameEn && nameEn.includes(q));
+      });
       setFilteredGenres(filtered);
     }
   };
@@ -71,10 +79,10 @@ export default function GenreSearchScreen({ navigation }: Props) {
         setLocationModalVisible(false);
         setAddressInput('');
       } else {
-        Alert.alert('エラー', '現在地を取得できませんでした');
+        Alert.alert(t('error.generic'), t('error.locationFailed'));
       }
     } catch (error) {
-      Alert.alert('エラー', '現在地の取得に失敗しました');
+      Alert.alert(t('error.generic'), t('error.locationFailedMessage'));
     } finally {
       setAddressLoading(false);
     }
@@ -82,7 +90,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
 
   const handleSearchAddress = async () => {
     if (!addressInput.trim()) {
-      Alert.alert('入力エラー', '住所または地名を入力してください');
+      Alert.alert(t('error.addressRequired'), t('error.addressRequiredMessage'));
       return;
     }
 
@@ -94,10 +102,10 @@ export default function GenreSearchScreen({ navigation }: Props) {
         setLocationModalVisible(false);
         setAddressInput('');
       } else {
-        Alert.alert('検索失敗', '指定された場所が見つかりませんでした');
+        Alert.alert(t('error.searchFailed'), t('error.searchFailedMessage'));
       }
     } catch (error) {
-      Alert.alert('エラー', '場所の検索に失敗しました');
+      Alert.alert(t('error.generic'), t('error.searchFailedGeneric'));
     } finally {
       setAddressLoading(false);
     }
@@ -118,7 +126,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
   };
 
   const handleGenreSelect = async (genre: Genre) => {
-    setSelectedGenre({ id: genre.id, name: genre.name });
+    setSelectedGenre({ id: genre.id, name: getGenreName(genre) });
     setPlaces([]);
     setPlacesError(undefined);
     setPlacesLoading(true);
@@ -137,7 +145,8 @@ export default function GenreSearchScreen({ navigation }: Props) {
           coords.latitude,
           coords.longitude,
           1500,
-          scoringSettings
+          scoringSettings,
+          locale
         );
 
         setPlaces(result.places);
@@ -177,17 +186,18 @@ export default function GenreSearchScreen({ navigation }: Props) {
           coords.latitude,
           coords.longitude,
           1500,
-          scoringSettings
+          scoringSettings,
+          locale
         );
 
         setPlaces(result.places);
         setPlacesError(result.error);
       } else {
-        setPlacesError('位置情報を取得できませんでした');
+        setPlacesError(t('error.locationNotAvailable'));
       }
     } catch (error) {
       console.error('Places search error:', error);
-      setPlacesError('検索に失敗しました');
+      setPlacesError(t('error.searchError'));
     } finally {
       setPlacesLoading(false);
     }
@@ -214,7 +224,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
       onPress={() => handleGenreSelect(item)}
       activeOpacity={0.7}
     >
-      <Text style={styles.genreName}>{item.name}</Text>
+      <Text style={styles.genreName}>{getGenreName(item)}</Text>
       <Text style={styles.chevron}>›</Text>
     </TouchableOpacity>
   );
@@ -228,19 +238,19 @@ export default function GenreSearchScreen({ navigation }: Props) {
           style={styles.backButton}
           onPress={() => navigation.navigate('Home')}
         >
-          <Text style={styles.backButtonText}>← 戻る</Text>
+          <Text style={styles.backButtonText}>{t('question.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>ジャンルから探す</Text>
+        <Text style={styles.title}>{t('genreSearch.title')}</Text>
       </View>
 
       <View style={styles.locationContainer}>
-        <Text style={styles.locationLabel}>検索場所</Text>
+        <Text style={styles.locationLabel}>{t('result.searchLocation')}</Text>
         <TouchableOpacity
           style={styles.locationButton}
           onPress={() => setLocationModalVisible(true)}
         >
           <Text style={styles.locationButtonText}>
-            {searchLocation ? searchLocation.name : '現在地周辺'}
+            {searchLocation?.isCurrentLocation ? t('result.currentLocation') : (searchLocation?.name ?? t('result.currentLocation'))}
           </Text>
           <Text style={styles.locationButtonIcon}>📍</Text>
         </TouchableOpacity>
@@ -249,7 +259,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="ジャンルを検索（例: ラーメン、寿司）"
+          placeholder={t('genreSearch.searchPlaceholder')}
           value={searchQuery}
           onChangeText={handleSearch}
           autoCapitalize="none"
@@ -263,7 +273,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
             onPress={handleFreeTextSearch}
           >
             <Text style={styles.freeTextSearchButtonText}>
-              「{searchQuery.trim()}」で検索
+              {t('genreSearch.searchFor', { query: searchQuery.trim() })}
             </Text>
           </TouchableOpacity>
         )}
@@ -280,8 +290,8 @@ export default function GenreSearchScreen({ navigation }: Props) {
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
             {searchQuery.trim() === ''
-              ? 'ジャンルを検索してください'
-              : '該当するジャンルが見つかりません'}
+              ? t('genreSearch.emptyPrompt')
+              : t('genreSearch.noResults')}
           </Text>
         </View>
       )}
@@ -301,22 +311,22 @@ export default function GenreSearchScreen({ navigation }: Props) {
             <View style={styles.locationModalContent}>
               <TouchableWithoutFeedback>
                 <View pointerEvents="auto">
-                  <Text style={styles.locationModalTitle}>検索場所を選択</Text>
+                  <Text style={styles.locationModalTitle}>{t('result.locationModalTitle')}</Text>
 
                   <TouchableOpacity
                     style={styles.locationOption}
                     onPress={handleUseCurrentLocation}
                     disabled={addressLoading}
                   >
-                    <Text style={styles.locationOptionText}>📍 現在地周辺</Text>
+                    <Text style={styles.locationOptionText}>{t('result.currentLocationOption')}</Text>
                   </TouchableOpacity>
 
                   <View style={styles.divider} />
 
-                  <Text style={styles.addressLabel}>または住所・地名を入力</Text>
+                  <Text style={styles.addressLabel}>{t('result.addressLabel')}</Text>
                   <TextInput
                     style={styles.addressInput}
-                    placeholder="例: 東京駅、渋谷区神南1-1-1"
+                    placeholder={t('result.addressPlaceholder')}
                     value={addressInput}
                     onChangeText={setAddressInput}
                     editable={!addressLoading}
@@ -330,7 +340,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
                     {addressLoading ? (
                       <ActivityIndicator color="#fff" />
                     ) : (
-                      <Text style={styles.addressSearchButtonText}>この場所で検索</Text>
+                      <Text style={styles.addressSearchButtonText}>{t('result.searchThisLocation')}</Text>
                     )}
                   </TouchableOpacity>
 
@@ -342,7 +352,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
                     }}
                     disabled={addressLoading}
                   >
-                    <Text style={styles.cancelButtonText}>キャンセル</Text>
+                    <Text style={styles.cancelButtonText}>{t('question.cancelButton')}</Text>
                   </TouchableOpacity>
                 </View>
               </TouchableWithoutFeedback>
@@ -355,7 +365,7 @@ export default function GenreSearchScreen({ navigation }: Props) {
       <PlacesModal
         visible={modalVisible}
         genreName={selectedGenre?.name || ''}
-        locationName={searchLocation?.name || '現在地'}
+        locationName={searchLocation?.isCurrentLocation ? t('places.currentLocation') : (searchLocation?.name || t('places.currentLocation'))}
         places={places}
         loading={placesLoading}
         error={placesError}

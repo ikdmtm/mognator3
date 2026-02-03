@@ -64,3 +64,12 @@ export const ANSWER_OPTIONS: AnswerOption[] = [
   { id: 'PROB_NO', label: 'たぶんいいえ', value: -1 },
   { id: 'NO', label: 'いいえ', value: -2 },
 ];
+
+/** i18n key for each answer option label */
+export const ANSWER_LABEL_KEYS: Record<AnswerId, string> = {
+  YES: 'answer.yes',
+  PROB_YES: 'answer.probYes',
+  UNKNOWN: 'answer.unknown',
+  PROB_NO: 'answer.probNo',
+  NO: 'answer.no',
+};

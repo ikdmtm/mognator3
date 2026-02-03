@@ -351,17 +351,11 @@ export class InferenceEngine {
   }
 
   /**
-   * 理由生成（簡易版）
+   * 理由生成（簡易版）— i18nキーを返す。UIで t(reason, { name }) して表示。
    */
-  private generateReason(genre: Genre): string {
-    // M2では簡易的な理由を返す
-    // M3以降で回答履歴から詳細な理由を生成
-    const reasons = [
-      `${genre.name}っぽい`,
-      `今の気分に合いそう`,
-      `良さそう`,
-    ];
-    return reasons[Math.floor(Math.random() * reasons.length)];
+  private generateReason(_genre: Genre): string {
+    const keys = ['reason.likely', 'reason.fitsMood', 'reason.good'];
+    return keys[Math.floor(Math.random() * keys.length)];
   }
 
   /**

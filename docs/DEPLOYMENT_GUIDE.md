@@ -1,5 +1,17 @@
 # iOSデプロイガイド
 
+## App Store Connect / TestFlight に必要な情報 早見表
+
+| どこで使う | 項目 | 必須 | 入力場所 |
+|------------|------|:----:|----------|
+| **アプリ登録時** | 名前・バンドルID・SKU・プライマリ言語 | ✅ | マイApp → 新規App |
+| **TestFlight** | ベータ版の説明（Beta App Description） | ✅ | TestFlight → テスト情報 |
+| **TestFlight** | フィードバック用メール（Feedback Email） | ✅ | TestFlight → テスト情報 |
+| **App提出時** | プライバシーポリシーURL | ✅ | アプリ情報 → プライバシー |
+| **App提出時** | サポートURL | 推奨 | App Store → バージョン情報 |
+| **App提出時** | 輸出コンプライアンス（暗号化） | ✅ | 本プロジェクトは app.json で `usesNonExemptEncryption: false` 済み |
+| **App提出時** | 年齢レーティング・カテゴリ・スクリーンショット | ✅ | アプリ情報 / バージョン |
+
 ## 前提条件
 
 - ✅ アプリアイコンとスプラッシュスクリーンの作成
@@ -91,10 +103,29 @@ eas build --platform ios --profile preview
    - **名前**: モグネイター
    - **プラットフォーム**: iOS
    - **プライマリ言語**: 日本語
-   - **バンドルID**: com.mognator.mobile
+   - **バンドルID**: com.ikdmtm.mognator（app.json の ios.bundleIdentifier と一致させる）
    - **SKU**: mognator-mobile-001
-4. TestFlight タブ → ビルドをアップロード
-5. 内部テスターを招待してテスト
+4. TestFlight タブ → ビルドをアップロード（EAS から自動送信している場合は自動で表示されます）
+5. **TestFlight の「テスト情報」を入力（下記）**
+6. 内部テスターを招待してテスト
+
+#### TestFlight で必要な追加情報（テスト情報）
+
+**外部テスターを招待する前**に、App Store Connect で以下を入力する必要があります。内部テスターのみでも、初回やビルド審査の際に求められることがあります。
+
+1. **App Store Connect** → **マイApp** → 該当アプリ → **TestFlight** タブ
+2. 左サイドバー **「その他」** → **「テスト情報」**
+3. 以下を入力：
+
+| 項目 | 必須 | 内容 |
+|------|------|------|
+| **ベータ版の説明**（Beta App Description） | ✅ 必須 | このベータ版で何をテストするか・主な機能を簡潔に記載。例：「近くの飲食店をAIで提案する機能のテストです。位置情報とジャンル選択をお試しください。」 |
+| **フィードバック用メール**（Feedback Email） | ✅ 必須 | テスターが問い合わせできるメールアドレス。招待メールの返信先にも使われます。例：support@example.com |
+| **招待にアプリ情報を含める**（App Information） | オプション | チェックONで、承認済みスクリーンショット・カテゴリが招待に表示されます。未提出の場合はOFFのままでも可。 |
+
+4. 言語を選択（日本語など）してから上記を入力し、保存します。
+
+**参考**: [Provide test information - Apple Developer](https://developer.apple.com/help/app-store-connect/test-a-beta-version/provide-test-information)
 
 ### ステップ7: 本番ビルド (Production)
 

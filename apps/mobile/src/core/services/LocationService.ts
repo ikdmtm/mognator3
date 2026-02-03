@@ -4,7 +4,8 @@ import { Platform, Linking } from 'react-native';
 export interface SearchLocation {
   latitude: number;
   longitude: number;
-  name: string; // 「現在地」or 住所名
+  name: string; // 住所名（現在地の場合は表示用に使わず isCurrentLocation で判定）
+  isCurrentLocation?: boolean; // true のとき UI で「現在地」を翻訳表示
 }
 
 /**
@@ -65,6 +66,7 @@ export class LocationService {
 
   /**
    * 現在地から SearchLocation を作成
+   * name は表示に使わず、isCurrentLocation が true のとき UI で翻訳表示すること
    */
   async getCurrentSearchLocation(): Promise<SearchLocation | null> {
     const location = await this.getCurrentLocation();
@@ -75,7 +77,8 @@ export class LocationService {
     return {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
-      name: '現在地',
+      name: '',
+      isCurrentLocation: true,
     };
   }
 

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Linking } 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { storageService } from '../core/services/StorageService';
 import { ScoringSettings, DEFAULT_SCORING_SETTINGS } from '../core/types/scoring.types';
+import { useI18n } from '../core/i18n';
 
 type RootStackParamList = {
   Home: undefined;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function SettingsScreen({ navigation }: Props) {
+  const { t, locale, setLocale } = useI18n();
   const [recordCount, setRecordCount] = useState(0);
   const [scoringSettings, setScoringSettings] = useState<ScoringSettings>(DEFAULT_SCORING_SETTINGS);
 
@@ -36,20 +38,20 @@ export default function SettingsScreen({ navigation }: Props) {
 
   const handleResetLearning = () => {
     Alert.alert(
-      '学習データをリセット',
-      '学習した履歴をすべて削除し、初期状態に戻します。よろしいですか？',
+      t('settings.resetLearningConfirmTitle'),
+      t('settings.resetLearningConfirmMessage'),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('question.cancelButton'), style: 'cancel' },
         {
-          text: 'リセット',
+          text: t('settings.reset'),
           style: 'destructive',
           onPress: async () => {
             try {
               await storageService.resetLearningData();
               await loadRecordCount();
-              Alert.alert('完了', '学習データをリセットしました');
+              Alert.alert(t('settings.done'), t('settings.resetLearningDone'));
             } catch (error) {
-              Alert.alert('エラー', '学習データのリセットに失敗しました');
+              Alert.alert(t('error.generic'), t('settings.resetLearningFailed'));
             }
           },
         },
@@ -87,17 +89,17 @@ export default function SettingsScreen({ navigation }: Props) {
 
   const handleResetScoring = async () => {
     Alert.alert(
-      'スコアリング設定をリセット',
-      'スコアリングの設定をデフォルトに戻します。よろしいですか？',
+      t('settings.resetScoringConfirmTitle'),
+      t('settings.resetScoringConfirmMessage'),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('question.cancelButton'), style: 'cancel' },
         {
-          text: 'リセット',
+          text: t('settings.reset'),
           style: 'destructive',
           onPress: async () => {
             setScoringSettings(DEFAULT_SCORING_SETTINGS);
             await storageService.saveScoringSettings(DEFAULT_SCORING_SETTINGS);
-            Alert.alert('完了', 'スコアリング設定をリセットしました');
+            Alert.alert(t('settings.done'), t('settings.resetScoringDone'));
           },
         },
       ]
@@ -109,32 +111,64 @@ export default function SettingsScreen({ navigation }: Props) {
     if (supported) {
       await Linking.openURL(url);
     } else {
-      Alert.alert('エラー', 'リンクを開けませんでした');
+      Alert.alert(t('error.generic'), t('settings.linkOpenFailed'));
     }
   };
 
   const priceLevelOptions = [
-    { value: 'ANY', label: 'こだわらない' },
-    { value: 'INEXPENSIVE', label: 'リーズナブル (¥)' },
-    { value: 'MODERATE', label: '普通 (¥¥)' },
-    { value: 'EXPENSIVE', label: 'やや高め (¥¥¥)' },
+    { value: 'ANY', label: t('settings.priceAny') },
+    { value: 'INEXPENSIVE', label: t('settings.priceInexpensive') },
+    { value: 'MODERATE', label: t('settings.priceModerate') },
+    { value: 'EXPENSIVE', label: t('settings.priceExpensive') },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>設定</Text>
+        <Text style={styles.title}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView style={styles.scrollContent}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>スコアリング設定</Text>
-          <Text style={styles.sectionDescription}>
-            店舗の並び順をカスタマイズできます
-          </Text>
+          <Text style={styles.sectionTitle}>{t('settings.languageTitle')}</Text>
+          <View style={styles.settingItem}>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[styles.optionButton, locale === 'ja' && styles.optionButtonActive]}
+                onPress={() => setLocale('ja')}
+              >
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    locale === 'ja' && styles.optionButtonTextActive,
+                  ]}
+                >
+                  {t('settings.languageJa')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.optionButton, locale === 'en' && styles.optionButtonActive]}
+                onPress={() => setLocale('en')}
+              >
+                <Text
+                  style={[
+                    styles.optionButtonText,
+                    locale === 'en' && styles.optionButtonTextActive,
+                  ]}
+                >
+                  {t('settings.languageEn')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('settings.scoringTitle')}</Text>
+          <Text style={styles.sectionDescription}>{t('settings.scoringDescription')}</Text>
 
           <View style={styles.settingItem}>
-            <Text style={styles.settingText}>好みの価格帯</Text>
+            <Text style={styles.settingText}>{t('settings.preferredPrice')}</Text>
             <View style={styles.buttonGroup}>
               {priceLevelOptions.map((option) => (
                 <TouchableOpacity
@@ -160,24 +194,21 @@ export default function SettingsScreen({ navigation }: Props) {
 
           <View style={styles.settingItem}>
             <View style={styles.weightTotalHeader}>
-              <Text style={styles.settingText}>重み付け調整</Text>
+              <Text style={styles.settingText}>{t('settings.weightAdjust')}</Text>
               <Text style={styles.weightTotal}>
-                合計: {((scoringSettings.weights.rating + 
+                {t('settings.weightTotal')}: {((scoringSettings.weights.rating + 
                          scoringSettings.weights.reviewCount + 
                          scoringSettings.weights.openNow + 
                          scoringSettings.weights.distance + 
                          scoringSettings.weights.priceLevel) * 100).toFixed(0)}%
               </Text>
             </View>
-            <Text style={styles.settingDescription}>
-              各要素の重要度を調整できます
-            </Text>
+            <Text style={styles.settingDescription}>{t('settings.weightDescription')}</Text>
           </View>
 
-          {/* 評価 */}
           <View style={styles.weightItem}>
             <View style={styles.weightHeader}>
-              <Text style={styles.weightLabel}>評価 (⭐)</Text>
+              <Text style={styles.weightLabel}>{t('settings.rating')}</Text>
               <Text style={styles.weightValue}>
                 {(scoringSettings.weights.rating * 100).toFixed(0)}%
               </Text>
@@ -198,10 +229,9 @@ export default function SettingsScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* レビュー数 */}
           <View style={styles.weightItem}>
             <View style={styles.weightHeader}>
-              <Text style={styles.weightLabel}>レビュー数</Text>
+              <Text style={styles.weightLabel}>{t('settings.reviewCount')}</Text>
               <Text style={styles.weightValue}>
                 {(scoringSettings.weights.reviewCount * 100).toFixed(0)}%
               </Text>
@@ -246,10 +276,9 @@ export default function SettingsScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* 距離 */}
           <View style={styles.weightItem}>
             <View style={styles.weightHeader}>
-              <Text style={styles.weightLabel}>距離（近さ）</Text>
+              <Text style={styles.weightLabel}>{t('settings.distance')}</Text>
               <Text style={styles.weightValue}>
                 {(scoringSettings.weights.distance * 100).toFixed(0)}%
               </Text>
@@ -270,10 +299,9 @@ export default function SettingsScreen({ navigation }: Props) {
             </View>
           </View>
 
-          {/* 価格帯適合度 */}
           <View style={styles.weightItem}>
             <View style={styles.weightHeader}>
-              <Text style={styles.weightLabel}>価格帯適合度</Text>
+              <Text style={styles.weightLabel}>{t('settings.priceLevelFit')}</Text>
               <Text style={styles.weightValue}>
                 {(scoringSettings.weights.priceLevel * 100).toFixed(0)}%
               </Text>
@@ -298,21 +326,17 @@ export default function SettingsScreen({ navigation }: Props) {
             style={styles.settingItem}
             onPress={handleResetScoring}
           >
-            <Text style={styles.settingText}>
-              スコアリング設定をリセット
-            </Text>
-            <Text style={styles.settingDescription}>
-              デフォルトの設定に戻します
-            </Text>
+            <Text style={styles.settingText}>{t('settings.resetScoring')}</Text>
+            <Text style={styles.settingDescription}>{t('settings.resetScoringToDefault')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>データ管理</Text>
+          <Text style={styles.sectionTitle}>{t('settings.dataManagement')}</Text>
 
           <View style={styles.settingItem}>
-            <Text style={styles.settingText}>学習レコード数</Text>
-            <Text style={styles.settingValue}>{recordCount}件</Text>
+            <Text style={styles.settingText}>{t('settings.learningRecords')}</Text>
+            <Text style={styles.settingValue}>{t('settings.recordsCount', { count: String(recordCount) })}</Text>
           </View>
 
           <TouchableOpacity
@@ -320,31 +344,29 @@ export default function SettingsScreen({ navigation }: Props) {
             onPress={handleResetLearning}
           >
             <Text style={[styles.settingText, styles.dangerText]}>
-              学習データをリセット
+              {t('settings.resetLearning')}
             </Text>
-            <Text style={styles.settingDescription}>
-              これまでの学習履歴を削除し、初期状態に戻します
-            </Text>
+            <Text style={styles.settingDescription}>{t('settings.resetLearningDescription')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>アプリについて</Text>
+          <Text style={styles.sectionTitle}>{t('settings.about')}</Text>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>バージョン</Text>
+            <Text style={styles.infoLabel}>{t('settings.version')}</Text>
             <Text style={styles.infoValue}>1.0.0</Text>
           </View>
           <View style={styles.linksContainer}>
             <TouchableOpacity 
               onPress={() => handleOpenLink('https://ikdmtm.github.io/mognator-docs/privacy.html')}
             >
-              <Text style={styles.linkText}>プライバシーポリシー</Text>
+              <Text style={styles.linkText}>{t('settings.privacyPolicy')}</Text>
             </TouchableOpacity>
             <Text style={styles.linkSeparator}>・</Text>
             <TouchableOpacity 
               onPress={() => handleOpenLink('https://ikdmtm.github.io/mognator-docs/support.html')}
             >
-              <Text style={styles.linkText}>サポート</Text>
+              <Text style={styles.linkText}>{t('settings.support')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -354,7 +376,7 @@ export default function SettingsScreen({ navigation }: Props) {
         style={styles.backButton}
         onPress={() => navigation.navigate('Home')}
       >
-        <Text style={styles.backButtonText}>ホームに戻る</Text>
+        <Text style={styles.backButtonText}>{t('settings.backHome')}</Text>
       </TouchableOpacity>
     </View>
   );

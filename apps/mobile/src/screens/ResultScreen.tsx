@@ -7,6 +7,7 @@ import { storageService } from '../core/services/StorageService';
 import { placesService, Place } from '../core/services/PlacesService';
 import { GenreResult } from '../core/types/genre.types';
 import { QuestionAnswer } from '../core/types/question.types';
+import { useI18n } from '../core/i18n';
 import PlacesModal from '../components/PlacesModal';
 
 type RootStackParamList = {
@@ -29,7 +30,8 @@ export default function ResultScreen({ navigation, route }: Props) {
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesError, setPlacesError] = useState<string | undefined>();
   const answers = route.params?.answers || [];
-  
+  const { t, locale } = useI18n();
+
   // 場所選択機能
   const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
   const [locationModalVisible, setLocationModalVisible] = useState(false);
@@ -51,10 +53,10 @@ export default function ResultScreen({ navigation, route }: Props) {
         setLocationModalVisible(false);
         setAddressInput('');
       } else {
-        Alert.alert('エラー', '現在地を取得できませんでした');
+        Alert.alert(t('error.generic'), t('error.locationFailed'));
       }
     } catch (error) {
-      Alert.alert('エラー', '現在地の取得に失敗しました');
+      Alert.alert(t('error.generic'), t('error.locationFailedMessage'));
     } finally {
       setAddressLoading(false);
     }
@@ -62,7 +64,7 @@ export default function ResultScreen({ navigation, route }: Props) {
 
   const handleSearchAddress = async () => {
     if (!addressInput.trim()) {
-      Alert.alert('入力エラー', '住所または地名を入力してください');
+      Alert.alert(t('error.addressRequired'), t('error.addressRequiredMessage'));
       return;
     }
 
@@ -74,10 +76,10 @@ export default function ResultScreen({ navigation, route }: Props) {
         setLocationModalVisible(false);
         setAddressInput('');
       } else {
-        Alert.alert('検索失敗', '指定された場所が見つかりませんでした');
+        Alert.alert(t('error.searchFailed'), t('error.searchFailedMessage'));
       }
     } catch (error) {
-      Alert.alert('エラー', '場所の検索に失敗しました');
+      Alert.alert(t('error.generic'), t('error.searchFailedGeneric'));
     } finally {
       setAddressLoading(false);
     }
@@ -126,17 +128,18 @@ export default function ResultScreen({ navigation, route }: Props) {
           coords.latitude,
           coords.longitude,
           1500,
-          scoringSettings
+          scoringSettings,
+          locale
         );
         
         setPlaces(result.places);
         setPlacesError(result.error);
       } else {
-        setPlacesError('位置情報を取得できませんでした');
+        setPlacesError(t('error.locationNotAvailable'));
       }
     } catch (error) {
       console.error('Places search error:', error);
-      setPlacesError('検索に失敗しました');
+      setPlacesError(t('error.searchError'));
     } finally {
       setPlacesLoading(false);
     }
@@ -146,13 +149,10 @@ export default function ResultScreen({ navigation, route }: Props) {
     try {
       const success = await locationService.openMapSearch(genreName);
       if (!success) {
-        Alert.alert(
-          'エラー',
-          'マップアプリを開けませんでした。'
-        );
+        Alert.alert(t('error.generic'), t('error.mapOpenFailed'));
       }
     } catch (error) {
-      Alert.alert('エラー', 'マップの起動に失敗しました。');
+      Alert.alert(t('error.generic'), t('error.mapOpenFailedMessage'));
     }
   };
 
@@ -163,10 +163,13 @@ export default function ResultScreen({ navigation, route }: Props) {
     setPlacesError(undefined);
   };
 
+  const getGenreName = (name: string, nameEn?: string) =>
+    (locale === 'en' && nameEn) ? nameEn : name;
+
   if (results.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>結果を計算中...</Text>
+        <Text>{t('result.calculating')}</Text>
       </View>
     );
   }
@@ -174,18 +177,18 @@ export default function ResultScreen({ navigation, route }: Props) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>あなたにおすすめ</Text>
-        <Text style={styles.subtitle}>今の気分に合いそうな食事です</Text>
+        <Text style={styles.title}>{t('result.title')}</Text>
+        <Text style={styles.subtitle}>{t('result.subtitle')}</Text>
       </View>
 
       <View style={styles.locationContainer}>
-        <Text style={styles.locationLabel}>検索場所</Text>
+        <Text style={styles.locationLabel}>{t('result.searchLocation')}</Text>
         <TouchableOpacity
           style={styles.locationButton}
           onPress={() => setLocationModalVisible(true)}
         >
           <Text style={styles.locationButtonText}>
-            {searchLocation ? searchLocation.name : '現在地周辺'}
+            {searchLocation?.isCurrentLocation ? t('result.currentLocation') : (searchLocation?.name ?? t('result.currentLocation'))}
           </Text>
           <Text style={styles.locationButtonIcon}>📍</Text>
         </TouchableOpacity>
@@ -194,19 +197,23 @@ export default function ResultScreen({ navigation, route }: Props) {
       {results.map((result, index) => (
         <View key={index} style={styles.resultCard}>
           <View style={styles.resultHeader}>
-            <Text style={styles.genreName}>{result.genre.name}</Text>
+            <Text style={styles.genreName}>
+              {getGenreName(result.genre.name, (result.genre as { nameEn?: string }).nameEn)}
+            </Text>
             <Text style={styles.probability}>
               {Math.round(result.probability * 100)}%
             </Text>
           </View>
-          <Text style={styles.reason}>{result.reason}</Text>
+          <Text style={styles.reason}>
+            {t(result.reason, { name: getGenreName(result.genre.name, (result.genre as { nameEn?: string }).nameEn) })}
+          </Text>
 
           <TouchableOpacity
             style={styles.mapButton}
-            onPress={() => handleSearchPlaces(result.genre.id, result.genre.name)}
+            onPress={() => handleSearchPlaces(result.genre.id, getGenreName(result.genre.name, (result.genre as { nameEn?: string }).nameEn))}
           >
             <Text style={styles.mapButtonText}>
-              {searchLocation ? '指定した場所で探す' : '近くで探す'}
+              {searchLocation ? t('result.searchAtLocation') : t('result.searchNearby')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -216,7 +223,7 @@ export default function ResultScreen({ navigation, route }: Props) {
         style={styles.homeButton}
         onPress={() => navigation.navigate('Home')}
       >
-        <Text style={styles.homeButtonText}>ホームに戻る</Text>
+        <Text style={styles.homeButtonText}>{t('result.backHome')}</Text>
       </TouchableOpacity>
 
       {/* 場所選択モーダル */}
@@ -234,22 +241,22 @@ export default function ResultScreen({ navigation, route }: Props) {
             <View style={styles.locationModalContent}>
               <TouchableWithoutFeedback>
                 <View pointerEvents="auto">
-                  <Text style={styles.locationModalTitle}>検索場所を選択</Text>
+                  <Text style={styles.locationModalTitle}>{t('result.locationModalTitle')}</Text>
 
                   <TouchableOpacity
                     style={styles.locationOption}
                     onPress={handleUseCurrentLocation}
                     disabled={addressLoading}
                   >
-                    <Text style={styles.locationOptionText}>📍 現在地周辺</Text>
+                    <Text style={styles.locationOptionText}>{t('result.currentLocationOption')}</Text>
                   </TouchableOpacity>
 
                   <View style={styles.divider} />
 
-                  <Text style={styles.addressLabel}>または住所・地名を入力</Text>
+                  <Text style={styles.addressLabel}>{t('result.addressLabel')}</Text>
                   <TextInput
                     style={styles.addressInput}
-                    placeholder="例: 東京駅、渋谷区神南1-1-1"
+                    placeholder={t('result.addressPlaceholder')}
                     value={addressInput}
                     onChangeText={setAddressInput}
                     editable={!addressLoading}
@@ -263,7 +270,7 @@ export default function ResultScreen({ navigation, route }: Props) {
                     {addressLoading ? (
                       <ActivityIndicator color="#fff" />
                     ) : (
-                      <Text style={styles.addressSearchButtonText}>この場所で検索</Text>
+                      <Text style={styles.addressSearchButtonText}>{t('result.searchThisLocation')}</Text>
                     )}
                   </TouchableOpacity>
 
@@ -275,7 +282,7 @@ export default function ResultScreen({ navigation, route }: Props) {
                     }}
                     disabled={addressLoading}
                   >
-                    <Text style={styles.cancelButtonText}>キャンセル</Text>
+                    <Text style={styles.cancelButtonText}>{t('question.cancelButton')}</Text>
                   </TouchableOpacity>
                 </View>
               </TouchableWithoutFeedback>
@@ -287,8 +294,8 @@ export default function ResultScreen({ navigation, route }: Props) {
       {/* 店舗リストモーダル */}
       <PlacesModal
         visible={modalVisible}
-        genreName={selectedGenre?.name || ''}
-        locationName={searchLocation?.name || '現在地'}
+        genreName={selectedGenre ? getGenreName(selectedGenre.name, (selectedGenre as { nameEn?: string }).nameEn) : ''}
+        locationName={searchLocation?.isCurrentLocation ? t('places.currentLocation') : (searchLocation?.name || t('places.currentLocation'))}
         places={places}
         loading={placesLoading}
         error={placesError}

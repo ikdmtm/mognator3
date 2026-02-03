@@ -152,6 +152,67 @@ const GENRE_TO_SEARCH_KEYWORD: Record<string, string> = {
   'nabe': '鍋',
 };
 
+// 英語検索用キーワード（lang=en のとき使用）
+const GENRE_TO_SEARCH_KEYWORD_EN: Record<string, string> = {
+  'ramen_iekei': 'Iekei ramen',
+  'ramen_tonkotsu': 'Tonkotsu ramen',
+  'ramen_shoyu': 'Shoyu ramen',
+  'ramen_miso': 'Miso ramen',
+  'ramen_shio': 'Shio ramen',
+  'ramen_tanmen': 'Tanmen',
+  'ramen_tsukemen': 'Tsukemen',
+  'ramen_aburasoba': 'Abura soba',
+  'ramen_jiro': 'Jiro ramen',
+  'ramen_toripaitan': 'Chicken paitan ramen',
+  'ramen_tantanmen': 'Tantanmen',
+  'curry_spice': 'Spice curry',
+  'curry_katsu': 'Katsu curry',
+  'curry_regular': 'Curry rice',
+  'curry_thai': 'Thai curry',
+  'curry_keema': 'Keema curry',
+  'curry_udon': 'Curry udon',
+  'sushi': 'Sushi',
+  'kaisen_donburi': 'Seafood rice bowl',
+  'yakiniku': 'Yakiniku',
+  'steak': 'Steak',
+  'yakitori': 'Yakitori',
+  'tonkatsu': 'Tonkatsu',
+  'karaage': 'Karaage',
+  'tempura': 'Tempura',
+  'kushikatsu': 'Kushikatsu',
+  'ten_donburi': 'Tendon',
+  'katsu_donburi': 'Katsudon',
+  'gyoza': 'Gyoza',
+  'mapo_tofu': 'Mapo tofu',
+  'chahan': 'Fried rice',
+  'chuka_teishoku': 'Chinese restaurant',
+  'xiaolongbao': 'Xiaolongbao',
+  'pasta': 'Pasta',
+  'pizza': 'Pizza',
+  'gyudon': 'Gyudon',
+  'butadon': 'Butadon',
+  'oyakodon': 'Oyakodon',
+  'unadon': 'Unagi',
+  'teishoku_fish': 'Grilled fish set',
+  'teishoku_shogayaki': 'Ginger pork set',
+  'teishoku_sashimi': 'Sashimi set',
+  'teishoku_hamburg': 'Hamburg steak',
+  'korean_yakiniku': 'Korean BBQ',
+  'korean_jjigae': 'Korean jjigae',
+  'korean_bibimbap': 'Bibimbap',
+  'korean_reimen': 'Naengmyeon',
+  'thai': 'Thai restaurant',
+  'vietnam': 'Vietnamese restaurant',
+  'ethnic_other': 'Asian restaurant',
+  'udon': 'Udon',
+  'soba': 'Soba',
+  'hamburger': 'Hamburger',
+  'omurice': 'Omurice',
+  'doria_gratin': 'Doria gratin',
+  'okonomiyaki': 'Okonomiyaki',
+  'nabe': 'Hot pot',
+};
+
 // CORS対応ヘッダー
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -224,14 +285,15 @@ async function searchNearby(
   types: string[],
   lat: number,
   lng: number,
-  radius: number = 1500
+  radius: number = 1500,
+  languageCode: string = 'ja'
 ): Promise<PlacesResponse> {
   const url = 'https://places.googleapis.com/v1/places:searchNearby';
   
   const body: PlacesNearbyRequest = {
     includedTypes: types,
     maxResultCount: 10,
-    languageCode: 'ja',
+    languageCode: languageCode === 'en' ? 'en' : 'ja',
     locationRestriction: {
       circle: {
         center: { latitude: lat, longitude: lng },
@@ -284,14 +346,16 @@ async function searchText(
   lat: number,
   lng: number,
   radius: number = 1500,
-  restaurantOnly: boolean = false
+  restaurantOnly: boolean = false,
+  languageCode: string = 'ja'
 ): Promise<PlacesResponse> {
   const url = 'https://places.googleapis.com/v1/places:searchText';
+  const lang = languageCode === 'en' ? 'en' : 'ja';
   
-  // 飲食店のみに絞る場合、クエリに「レストラン」を追加
+  // 飲食店のみに絞る場合、クエリにレストランを追加（言語に応じて）
   let searchQuery = query;
   if (restaurantOnly) {
-    searchQuery = `${query} レストラン 飲食店`;
+    searchQuery = lang === 'en' ? `${query} restaurant` : `${query} レストラン 飲食店`;
   }
   
   const body: PlacesTextSearchRequest = {
@@ -303,7 +367,7 @@ async function searchText(
         radius: radius,
       },
     },
-    languageCode: 'ja',
+    languageCode: lang,
   };
   
   // 飲食店のみに絞る場合
@@ -490,6 +554,7 @@ export default {
         const genreId = url.searchParams.get('genre');
         const keyword = url.searchParams.get('keyword'); // フリーテキスト検索用
         const restaurantOnly = url.searchParams.get('restaurant') === 'true'; // 飲食店のみに絞る
+        const lang = url.searchParams.get('lang') || 'ja'; // en | ja、Google Places の返却言語
         const lat = parseFloat(url.searchParams.get('lat') || '');
         const lng = parseFloat(url.searchParams.get('lng') || '');
         const radius = parseInt(url.searchParams.get('radius') || '1500');
@@ -515,12 +580,13 @@ export default {
         
         // フリーテキスト検索の場合
         if (keyword && !genreId) {
-          result = await searchText(env, keyword, lat, lng, radius, restaurantOnly);
+          result = await searchText(env, keyword, lat, lng, radius, restaurantOnly, lang);
         } else if (genreId) {
-          // ジャンルIDベース検索：日本語クエリで直接Text Searchを実行
-          const genreKeyword = GENRE_TO_SEARCH_KEYWORD[genreId] || genreId;
-          // ジャンル検索では常にrestaurantOnlyをtrueにして飲食店のみに絞る
-          result = await searchText(env, genreKeyword, lat, lng, radius, true);
+          // ジャンルIDベース検索：lang に応じてキーワードを選択
+          const genreKeyword = lang === 'en'
+            ? (GENRE_TO_SEARCH_KEYWORD_EN[genreId] || GENRE_TO_SEARCH_KEYWORD[genreId] || genreId)
+            : (GENRE_TO_SEARCH_KEYWORD[genreId] || genreId);
+          result = await searchText(env, genreKeyword, lat, lng, radius, true, lang);
         } else {
           // genreもkeywordもない場合（エラー処理済み）
           result = { places: [] };

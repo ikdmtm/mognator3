@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { Place } from '../core/services/PlacesService';
+import { useI18n } from '../core/i18n';
 import PlaceDetailModal from './PlaceDetailModal';
 
 interface Props {
@@ -33,15 +34,19 @@ export default function PlacesModal({
   onClose,
   onOpenMap,
 }: Props) {
+  const { t } = useI18n();
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
 
-  // サブタイトルを動的に生成
   const getSubtitle = () => {
-    if (!locationName || locationName === '現在地') {
-      return '近くの店';
+    if (!locationName) {
+      return t('places.nearby');
     }
-    return `${locationName}周辺の店`;
+    const currentLabel = t('places.currentLocation');
+    if (locationName === currentLabel) {
+      return t('places.nearby');
+    }
+    return t('places.nearbyFormat', { location: locationName });
   };
 
   const handlePlacePress = (place: Place) => {
@@ -57,7 +62,7 @@ export default function PlacesModal({
   const renderPriceLevel = (priceLevel?: string) => {
     if (!priceLevel) return null;
     const levels: Record<string, string> = {
-      PRICE_LEVEL_FREE: '無料',
+      PRICE_LEVEL_FREE: t('places.priceFree'),
       PRICE_LEVEL_INEXPENSIVE: '¥',
       PRICE_LEVEL_MODERATE: '¥¥',
       PRICE_LEVEL_EXPENSIVE: '¥¥¥',
@@ -103,7 +108,7 @@ export default function PlacesModal({
               styles.openStatus,
               { color: item.currentOpeningHours.openNow ? '#34C759' : '#FF3B30' }
             ]}>
-              {item.currentOpeningHours.openNow ? '営業中' : '営業時間外'}
+              {item.currentOpeningHours.openNow ? t('places.openNow') : t('places.closed')}
             </Text>
           )}
         </View>
@@ -124,7 +129,7 @@ export default function PlacesModal({
       return (
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color="#FF6B35" />
-          <Text style={styles.loadingText}>お店を探しています...</Text>
+          <Text style={styles.loadingText}>{t('places.searching')}</Text>
         </View>
       );
     }
@@ -132,13 +137,13 @@ export default function PlacesModal({
     if (error) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.errorText}>検索できませんでした</Text>
+          <Text style={styles.errorText}>{t('places.searchFailed')}</Text>
           <Text style={styles.errorDetail}>{error}</Text>
           <TouchableOpacity
             style={styles.fallbackButton}
             onPress={() => onOpenMap(genreName)}
           >
-            <Text style={styles.fallbackButtonText}>マップで検索</Text>
+            <Text style={styles.fallbackButtonText}>{t('places.searchOnMap')}</Text>
           </TouchableOpacity>
         </View>
       );
@@ -146,12 +151,12 @@ export default function PlacesModal({
 
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>お店が見つかりませんでした</Text>
+        <Text style={styles.emptyText}>{t('places.noPlaces')}</Text>
         <TouchableOpacity
           style={styles.fallbackButton}
           onPress={() => onOpenMap(genreName)}
         >
-          <Text style={styles.fallbackButtonText}>マップで検索</Text>
+          <Text style={styles.fallbackButtonText}>{t('places.searchOnMap')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -189,7 +194,7 @@ export default function PlacesModal({
               style={styles.mapButton}
               onPress={() => onOpenMap(genreName)}
             >
-              <Text style={styles.mapButtonText}>マップで全て見る</Text>
+              <Text style={styles.mapButtonText}>{t('places.viewAllOnMap')}</Text>
             </TouchableOpacity>
           </View>
         )}

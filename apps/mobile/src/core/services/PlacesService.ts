@@ -69,13 +69,15 @@ class PlacesService {
 
   /**
    * 近くの店舗を検索
+   * @param languageCode 'ja' | 'en' - API/Google の返却言語（店名・住所など）
    */
   async searchNearby(
     genreId: string,
     latitude: number,
     longitude: number,
     radius: number = 1500,
-    scoringSettings?: ScoringSettings
+    scoringSettings?: ScoringSettings,
+    languageCode: string = 'ja'
   ): Promise<PlacesSearchResult> {
     try {
       const params = new URLSearchParams({
@@ -84,6 +86,7 @@ class PlacesService {
         lng: longitude.toString(),
         radius: radius.toString(),
         restaurant: 'true', // 飲食店のみに絞る
+        lang: languageCode === 'en' ? 'en' : 'ja',
       });
 
       // スコアリング設定をクエリパラメータに追加
@@ -122,13 +125,15 @@ class PlacesService {
 
   /**
    * フリーテキストで店舗を検索（飲食店のみ）
+   * @param languageCode 'ja' | 'en' - API/Google の返却言語
    */
   async searchByKeyword(
     keyword: string,
     latitude: number,
     longitude: number,
     radius: number = 1500,
-    scoringSettings?: ScoringSettings
+    scoringSettings?: ScoringSettings,
+    languageCode: string = 'ja'
   ): Promise<PlacesSearchResult> {
     try {
       const params = new URLSearchParams({
@@ -137,6 +142,7 @@ class PlacesService {
         lng: longitude.toString(),
         radius: radius.toString(),
         restaurant: 'true', // 飲食店のみに絞る
+        lang: languageCode === 'en' ? 'en' : 'ja',
       });
 
       // スコアリング設定をクエリパラメータに追加

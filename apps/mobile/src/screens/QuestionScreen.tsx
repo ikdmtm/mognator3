@@ -7,9 +7,11 @@ import {
   Question, 
   QuestionAnswer, 
   ANSWER_OPTIONS, 
+  ANSWER_LABEL_KEYS,
   AnswerId,
   QUESTION_CONFIG 
 } from '../core/types/question.types';
+import { useI18n } from '../core/i18n';
 
 type RootStackParamList = {
   Home: undefined;
@@ -117,14 +119,16 @@ export default function QuestionScreen({ navigation }: Props) {
     }
   };
 
+  const { t, locale } = useI18n();
+
   const handleCancel = () => {
     Alert.alert(
-      '中断',
-      '質問を中断してホームに戻りますか？',
+      t('question.cancelConfirmTitle'),
+      t('question.cancelConfirmMessage'),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('question.cancelButton'), style: 'cancel' },
         {
-          text: '中断する',
+          text: t('question.cancelConfirm'),
           style: 'destructive',
           onPress: () => {
             questionService.reset();
@@ -138,7 +142,7 @@ export default function QuestionScreen({ navigation }: Props) {
   if (!currentQuestion) {
     return (
       <View style={styles.container}>
-        <Text>読み込み中...</Text>
+        <Text>{t('question.loading')}</Text>
       </View>
     );
   }
@@ -150,13 +154,17 @@ export default function QuestionScreen({ navigation }: Props) {
       <View style={styles.header}>
         <Text style={styles.progress}>{progress}</Text>
         <TouchableOpacity onPress={handleCancel} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={styles.cancelText}>中断</Text>
+          <Text style={styles.cancelText}>{t('question.cancel')}</Text>
         </TouchableOpacity>
       </View>
 
       <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
         <View style={styles.questionCard}>
-          <Text style={styles.questionText}>{currentQuestion.text}</Text>
+          <Text style={styles.questionText}>
+            {locale === 'en' && (currentQuestion as Question & { textEn?: string }).textEn
+              ? (currentQuestion as Question & { textEn?: string }).textEn!
+              : currentQuestion.text}
+          </Text>
         </View>
       </Animated.View>
 
@@ -168,7 +176,7 @@ export default function QuestionScreen({ navigation }: Props) {
             onPress={() => handleAnswer(option.id)}
             activeOpacity={0.7}
           >
-            <Text style={styles.answerText}>{option.label}</Text>
+            <Text style={styles.answerText}>{t(ANSWER_LABEL_KEYS[option.id])}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -179,7 +187,7 @@ export default function QuestionScreen({ navigation }: Props) {
           onPress={handleBack}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.backText}>← 戻る</Text>
+          <Text style={styles.backText}>{t('question.back')}</Text>
         </TouchableOpacity>
       )}
     </View>
